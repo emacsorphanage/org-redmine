@@ -3,64 +3,54 @@
 ** Install
 *** Using git
     1. You can clone the git repository
-       
        : git clone git://github.com/hackers/org-redmine.git
 
     2. Then add this to your ~/.emacs.el
-
-       #+begin_src elisp
-         (add-to-list 'load-path "/path/to/org-redmine/")
-         (require 'org-redmine)
-       #+end_src
+       : (add-to-list 'load-path "/path/to/org-redmine/")
+       : (require 'org-redmine)
 
 *** Using auto-install
-    #+begin_src elisp
-      ;; Eval this 
-      (auto-install-from-url "https://raw.github.com/hackers/org-redmine/master/org-redmine.el")
-      
-      ;; Or run
-      ;; M-x auto-install-from-url RET https://raw.github.com/hackers/org-redmine/master/org-redmine.el
-    #+end_src
+    : ;; Eval this 
+    : (auto-install-from-url "https://raw.github.com/hackers/org-redmine/master/org-redmine.el")
+    : 
+    : ;; Or run
+    : ;; M-x auto-install-from-url RET https://raw.github.com/hackers/org-redmine/master/org-redmine.el
 ** Setup
 *** URL and key
-   #+begin_src elisp
-     ;; Target Redmine URI
-     ;;   eg. Redmine Project
-     (setq org-redmine-uri "http://www.redmine.org")
-     ;;   eg. Ruby Project
-     (setq org-redmine-uri "http://redmine.ruby-lang.org")
-
-     ;; REST API Key (optional). default nil
-     (setq org-redmine-api-key "xxxxxxxxxxxxxxxxxxxx")
-   #+end_src
+    : ;; Target Redmine URI
+    : ;;   eg. Redmine Project
+    : (setq org-redmine-uri "http://www.redmine.org")
+    : ;;   eg. Ruby Project
+    : (setq org-redmine-uri "http://redmine.ruby-lang.org")
+    : 
+    : ;; REST API Key (optional). default nil
+    : (setq org-redmine-api-key "xxxxxxxxxxxxxxxxxxxx")
 *** Template of insert subtree
-    #+begin_src elisp
-      ;; default template
-      ;; (defvar org-redmine-template-header "#%i% %s% :%t_n%:")
-      ;; (defvar org-redmine-template-property nil)
-      
-      ;; * [#333] Subject :Tag:
-      
-      (setq org-redmine-template-header "[%p_n%] #%i% %s% by %as_n%")
-      (setq org-redmine-template-property
-            '(("assigned_to" . "%as_n%")
-              ("version" . "%v_n%")))
-      
-      ;; * [ProjectName] #333 Subject by gongo
-      ;;   :PROPERTIES:
-      ;;   :assigned_to:  dududu
-      ;;   :version: 1.2
-      ;;   :END:
-      
-      (setq org-redmine-template-header "[#%i%] %s%")
-      (setq org-redmine-template-property
-            '(("project_name" . "%as_n%")))
-      
-      ;; * [#333] Subject
-      ;;   :PROPERTIES:
-      ;;   :project_name:  ProjectName
-      ;;   :END:
-    #+end_src
+    : ;; default template
+    : ;; (defvar org-redmine-template-header "#%i% %s% :%t_n%:")
+    : ;; (defvar org-redmine-template-property nil)
+    : 
+    : ;; * [#333] Subject :Tag:
+    :  
+    : (setq org-redmine-template-header "[%p_n%] #%i% %s% by %as_n%")
+    : (setq org-redmine-template-property
+    :       '(("assigned_to" . "%as_n%")
+    :         ("version" . "%v_n%")))
+    :  
+    : ;; * [ProjectName] #333 Subject by gongo
+    : ;;   :PROPERTIES:
+    : ;;   :assigned_to:  dududu
+    : ;;   :version: 1.2
+    : ;;   :END:
+    :  
+    : (setq org-redmine-template-header "[#%i%] %s%")
+    : (setq org-redmine-template-property
+    :       '(("project_name" . "%as_n%")))
+    :  
+    : ;; * [#333] Subject
+    : ;;   :PROPERTIES:
+    : ;;   :project_name:  ProjectName
+    : ;;   :END:
 
     See org-redmine.el for other % sequence list
     

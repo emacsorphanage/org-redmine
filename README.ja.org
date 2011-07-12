@@ -3,65 +3,55 @@
 ** インストール
 *** git でもってくる
     1. org-redmine リポジトリを clone します
-       
        : git clone git://github.com/hackers/org-redmine.git
 
     2. 以下を .emacs など、適当な箇所に書いておきます
-
-       #+begin_src elisp
-         (add-to-list 'load-path "/path/to/org-redmine/")
-         (require 'org-redmine)
-       #+end_src
+       : (add-to-list 'load-path "/path/to/org-redmine/")
+       : (require 'org-redmine)
 *** auto-install ユーザ向け
-    #+begin_src elisp
-      ;; 以下を評価するとインストールできます
-      (auto-install-from-url "https://raw.github.com/hackers/org-redmine/master/org-redmine.el")
-      
-      ;; もしくは、以下を実行してください
-      ;; M-x auto-install-from-url RET https://raw.github.com/hackers/org-redmine/master/org-redmine.el
-    #+end_src
+    以下を評価するとインストールできます
+    : (auto-install-from-url "https://raw.github.com/hackers/org-redmine/master/org-redmine.el")
+
+    もしくは、以下を実行してください
+    : M-x auto-install-from-url RET https://raw.github.com/hackers/org-redmine/master/org-redmine.el
 ** 設定
 *** URL や API Key
-   #+begin_src elisp
-     ;; 対象の Redmine の URL を設定します
-     ;;   例. Redmine Project
-     (setq org-redmine-uri "http://www.redmine.org")
-     ;;   例. Ruby Project
-     (setq org-redmine-uri "http://redmine.ruby-lang.org")
+    : ;; 対象の Redmine の URL を設定します
+    : ;;   例. Redmine Project
+    : (setq org-redmine-uri "http://www.redmine.org")
+    : ;;   例. Ruby Project
+    : (setq org-redmine-uri "http://redmine.ruby-lang.org")
 
-     ;; オプションとして、REST API Key が設定可能です。デフォルトは nil になっています
-     (setq org-redmine-api-key "xxxxxxxxxxxxxxxxxxxx")
-   #+end_src
+    : ;; オプションとして、REST API Key が設定可能です。デフォルトは nil になっています
+    : (setq org-redmine-api-key "xxxxxxxxxxxxxxxxxxxx")
 *** 挿入するサブツリーのテンプレート
-    #+begin_src elisp
-      ;; デフォルトのテンプレート
-      ;; (defvar org-redmine-template-header "#%i% %s% :%t_n%:")
-      ;; (defvar org-redmine-template-property nil)
-      
-      ;; このように挿入されます
-      ;; * [#333] Subject :Tag:
-      
-      (setq org-redmine-template-header "[%p_n%] #%i% %s% by %as_n%")
-      (setq org-redmine-template-property
-            '(("担当者" . "%as_n%")
-              ("対象バージョン" . "%v_n%")))
-      
-      ;; このように挿入されます
-      ;; * [ProjectName] #333 Subject by gongo
-      ;;   :PROPERTIES:
-      ;;   :担当者:  dududu
-      ;;   :対象バージョン: 1.2
-      ;;   :END:
-      
-      (setq org-redmine-template-header "[#%i%] %s%")
-      (setq org-redmine-template-property
-            '(("プロジェクト名" . "%as_n%")))
-      
-      ;; * [#333] Subject
-      ;;   :PROPERTIES:
-      ;;   :プロジェクト名:  ProjectName
-      ;;   :END:
-    #+end_src
+    : ;; デフォルトのテンプレート
+    : ;; (defvar org-redmine-template-header "#%i% %s% :%t_n%:")
+    : ;; (defvar org-redmine-template-property nil)
+    : 
+    : ;; このように挿入されます
+    : ;; * [#333] Subject :Tag:
+    : 
+    : (setq org-redmine-template-header "[%p_n%] #%i% %s% by %as_n%")
+    : (setq org-redmine-template-property
+    :       '(("担当者" . "%as_n%")
+    :         ("対象バージョン" . "%v_n%")))
+    :  
+    : ;; このように挿入されます
+    : ;; * [ProjectName] #333 Subject by gongo
+    : ;;   :PROPERTIES:
+    : ;;   :担当者:  dududu
+    : ;;   :対象バージョン: 1.2
+    : ;;   :END:
+    : 
+    : (setq org-redmine-template-header "[#%i%] %s%")
+    : (setq org-redmine-template-property
+    :       '(("プロジェクト名" . "%as_n%")))
+    :  
+    : ;; * [#333] Subject
+    : ;;   :PROPERTIES:
+    : ;;   :プロジェクト名:  ProjectName
+    : ;;   :END:
 
     テンプレートで使用できるフォーマットは、org-redmine.el に載っています。
 ** ライセンスについて
