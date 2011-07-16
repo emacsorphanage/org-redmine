@@ -190,6 +190,10 @@
     (let ((org-redmine-limit 100))
       (org-redmine-config-get-limit)))
 
+  (desc "org-redmine-config-get-limit : with arg")
+  (expect (type string)
+    (org-redmine-config-get-limit t))
+
   (desc "org-redmine-config-get-limit : out of range (1-100)")
   (expect 25
     (let ((org-redmine-limit 0))

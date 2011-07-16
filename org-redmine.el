@@ -279,7 +279,8 @@ Example.
 
 if ME is t, return issues are assigned to user.
 "
-  (let* ((querylist (list (cons "key" (or org-redmine-api-key ""))))
+  (let* ((querylist (list (cons "key" (or org-redmine-api-key ""))
+                          (cons "limit" (org-redmine-config-get-limit t))))
          query issue-all)
 
     (if me (progn
@@ -318,7 +319,7 @@ Example.
 ;;------------------------------
 ;; org-redmine config function
 ;;------------------------------
-(defun org-redmine-config-get-limit ()
+(defun org-redmine-config-get-limit (&optional toStr)
   (let ((limit org-redmine-limit))
     (if (integerp limit)
         (if (or (< limit 1) (> limit 100))
@@ -330,7 +331,7 @@ Example.
         (message (format "Warning: org-redmine-limit isn't integer. return default value %s"
                          org-redmine-config-default-limit))
         (setq limit org-redmine-config-default-limit)))
-    limit))
+    (if toStr (int-to-string limit) limit)))
     
 ;;------------------------------
 ;; org-redmine user function
