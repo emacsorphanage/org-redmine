@@ -109,13 +109,12 @@
   :END:
 "
     (stub org-redmine-curl-get => fixture-issue-json)
-    (stub read-from-minibuffer => "1")
     (with-current-buffer (exps-tmpbuf)
       (let ((org-redmine-template-header "#%i% %s% :%t_n%:")
             (org-redmine-template-property '(("project_name" . "%p_n%")
                                              ("author"       . "%au_n%"))))
         (change-buffer-to 'org-mode)
-        (org-redmine-get-issue)
+        (org-redmine-get-issue "1")
         (buffer-string))))
 
   (desc "org-redmine-get-issue to end of subtree")
@@ -128,14 +127,13 @@
    :END:
 "
     (stub org-redmine-curl-get => fixture-issue-json)
-    (stub read-from-minibuffer => "1")
     (with-current-buffer (exps-tmpbuf)
       (let ((org-redmine-template-header "#%i% %s% :%t_n%:")
             (org-redmine-template-property '(("author" . "%au_n%"))))
         (change-buffer-to 'org-mode)
         (insert "* hoge\n")
         (insert "** fuga\n")
-        (org-redmine-get-issue)
+        (org-redmine-get-issue "1")
         (buffer-string))))
 
   (desc "org-redmine-get-issue to between subtree")
@@ -149,7 +147,6 @@
 ** hago
 "
     (stub org-redmine-curl-get => fixture-issue-json)
-    (stub read-from-minibuffer => "1")
     (with-current-buffer (exps-tmpbuf)
       (let ((org-redmine-template-header "%p_n% / [%i%] %s_n% :%c_n%:")
             (org-redmine-template-property '(("subject" . "%s%"))))
@@ -158,7 +155,7 @@
         (insert "** fuga\n")
         (insert "** hago\n")
         (outline-previous-visible-heading 2)
-        (org-redmine-get-issue)
+        (org-redmine-get-issue "1")
         (buffer-string))))
 
   (desc "org-redmine-issue-uri")

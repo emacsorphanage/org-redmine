@@ -336,11 +336,10 @@ Example.
 ;;------------------------------
 ;; org-redmine user function
 ;;------------------------------
-(defun org-redmine-get-issue ()
+(defun org-redmine-get-issue (issue-id)
   ""
-  (interactive)
-  (let* ((issue-id (read-from-minibuffer "Issue ID:"))
-         (query (concat "key=" org-redmine-api-key))
+  (interactive "sIssue ID: ")
+  (let* ((query (orutil-http-query (list (cons "key" org-redmine-api-key))))
          (issue (org-redmine-curl-get (format "%s/issues/%s.json?%s"
                                               org-redmine-uri issue-id query))))
     (org-redmine-insert-subtree (orutil-gethash issue "issue"))))
