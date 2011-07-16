@@ -65,13 +65,15 @@
         ("%s%"       "subject")
         ("%t_i%"     "tracker" "id")
         ("%t_n%"     "tracker" "name")
-        ("%u_date%"  "updated_on")))
+        ("%u_date%"  "updated_on")
+        ("%v_n%"     "fixed_version" "name")
+        ("%v_i%"     "fixed_version" "id")))
 
-(defun orel-util-join (list &optional sep func)
+(defun orutil-join (list &optional sep func)
   (mapconcat (lambda (x) (if func (funcall func x) (format "%s" x))) list (or sep ",")))
 
-(defun orel-util-http-query (alist)
-  (orel-util-join alist "&"
+(defun orutil-http-query (alist)
+  (orutil-join alist "&"
                   (lambda (x) 
                     (format "%s=%s"
                             (url-hexify-string (car x))
@@ -103,7 +105,7 @@
 
 (defun org-redmine-issue-attribute (issue attribute)
   ""
-  (format "%s" (apply 'org-redmine-gethash issue attribute)))
+  (format "%s" (apply 'orutil-gethash issue attribute)))
 
 (defun org-redmine-issue-attribute-from-sequence (issue sequence)
   ""
@@ -167,26 +169,26 @@
          (query (concat "key=" org-redmine-api-key))
          (issue (org-redmine-curl-get (format "%s/issues/%s.json?%s"
                                               org-redmine-uri issue-id query))))
-    (org-redmine-insert-subtree (org-redmine-gethash issue "issue"))))
+    (org-redmine-insert-subtree (orutil-gethash issue "issue"))))
 
 (defun org-redmine-get-issue-all (me)
   "Return the recent issues.
 
-if ME not nil, return issues are assigned to user
+With prefix arg ME, return issues are assigned to user.
 "
   (let* ((assigned (if me "me" ""))
          (key      (or org-redmine-api-key ""))
-         ;; (query (orel-util-http-query '(("key" . `key)
+         ;; (query (orutil-http-query '(("key" . `key)
          ;;                                ("assigned_to_id" . `assigned))
          ;;                              ))
          (query (concat "key="(or org-redmine-api-key "")))
          (issues-all (org-redmine-curl-get
-                      (concat org-redmine-uri "/issues.json?assigned_to_id=me&" query))))
+                      (concat org-redmine-uri "/issues.json?" query))))
                       ;;(concat org-redmine-uri "/issues.json?" query))))
-  (org-redmine-gethash issues-all "issues")))
+  (orutil-gethash issues-all "issues")))
 
 
-(defun org-redmine-gethash (table k &rest keys)
+(defun orutil-gethash (table k &rest keys)
   "Execute `gethash' recursive to TABLE.
 
 Example:
@@ -197,17 +199,17 @@ Example:
                           \"d\" : { \"e\" : \"31\" }
                       }
               } ;; => pseudo hash table like json format
-  (org-redmine-gethash hashtable \"a\")
+  (orutil-gethash hashtable \"a\")
       ;; => 3
-  (org-redmine-gethash hashtable \"b\")
+  (orutil-gethash hashtable \"b\")
       ;; => { \"c\" : \"12\", \"d\" : { \"e\" : \"31\" } }
-  (org-redmine-gethash hashtable \"b\" \"c\")
+  (orutil-gethash hashtable \"b\" \"c\")
       ;; => \"12\"
-  (org-redmine-gethash hashtable \"b\" \"d\" \"e\")
+  (orutil-gethash hashtable \"b\" \"d\" \"e\")
       ;; => \"31\"
-  (org-redmine-gethash hashtable \"b\" \"a\")
+  (orutil-gethash hashtable \"b\" \"a\")
       ;; => nil
-  (org-redmine-gethash hashtable \"a\" \"c\")
+  (orutil-gethash hashtable \"a\" \"c\")
       ;; => nil
 "
   (save-match-data
@@ -230,7 +232,7 @@ Example.
 
   (setq org-redmine-uri \"http://localhost/redmine\")
   (org-redmine-issue-uri issue) ;; => \"http://localhost/redmine/issues/1\""
-  (format "%s/issues/%s" org-redmine-uri (org-redmine-gethash issue "id")))
+  (format "%s/issues/%s" org-redmine-uri (orutil-gethash issue "id")))
 
 (defun org-redmine-transformer-issues-source (issues)
   "Transform issues to `anything' source.
@@ -247,10 +249,10 @@ Example.
    (lambda (i)
      (let (display-value action-value)
        (setq display-value (format "#%s [%s] %s / %s"
-                                   (org-redmine-gethash i "id")
-                                   (org-redmine-gethash i "project" "name")
-                                   (org-redmine-gethash i "subject")
-                                   (or (org-redmine-gethash i "assigned_to" "name")
+                                   (orutil-gethash i "id")
+                                   (orutil-gethash i "project" "name")
+                                   (orutil-gethash i "subject")
+                                   (or (orutil-gethash i "assigned_to" "name")
                                        "未割り当て")))
        (setq action-value i)
        (cons display-value action-value)))

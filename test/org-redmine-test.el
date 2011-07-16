@@ -10,27 +10,27 @@
   (set-buffer-major-mode (current-buffer)))
 
 (expectations
-  (desc "org-redmine-gethash")
+  (desc "orutil-gethash")
   (expect 3
-    (org-redmine-gethash hash-json "a"))
+    (orutil-gethash hash-json "a"))
   (expect (type hash-table)
-    (org-redmine-gethash hash-json "b"))
+    (orutil-gethash hash-json "b"))
   (expect "12"
-    (org-redmine-gethash hash-json "b" "c"))
+    (orutil-gethash hash-json "b" "c"))
   (expect "31"
-    (org-redmine-gethash hash-json "b" "d" "e"))
+    (orutil-gethash hash-json "b" "d" "e"))
   (expect nil
-    (org-redmine-gethash hash-json "b" "a"))
+    (orutil-gethash hash-json "b" "a"))
   (expect nil
-    (org-redmine-gethash hash-json "a" "c"))
+    (orutil-gethash hash-json "a" "c"))
 
-  (desc "orel-util-join")
+  (desc "orutil-join")
   (expect "a,b,c"
-    (orel-util-join '("a" "b" "c")))
+    (orutil-join '("a" "b" "c")))
   (expect "a-b-c"
-    (orel-util-join '("a" "b" "c") "-"))
+    (orutil-join '("a" "b" "c") "-"))
   (expect "3%2%1"
-    (orel-util-join '(3 "2" 1) "%"))
+    (orutil-join '(3 "2" 1) "%"))
 
   (desc "org-redmine-template-%-sequence-to-attribute")
   (expect '("id")
