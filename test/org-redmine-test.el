@@ -158,6 +158,17 @@
         (org-redmine-get-issue "1")
         (buffer-string))))
 
+  (desc "org-redmine-get-issue : Can't find issue id")
+  (expect "OrgRedmine - Not retrieved: Can't find issue #1 on http://localhost
+"
+    (stub call-process => 22)
+    (let ((org-redmine-uri "http://localhost"))
+      (save-excursion
+        (set-buffer (get-buffer-create "*Messages*"))
+        (erase-buffer)
+        (org-redmine-get-issue "1")
+        (buffer-string))))
+
   (desc "org-redmine-issue-uri")
   (expect "http://localhost/issues/1"
     (let ((org-redmine-uri "http://localhost"))
@@ -206,4 +217,27 @@
   (expect 25
     (let ((org-redmine-limit '()))
       (org-redmine-config-get-limit)))
-)
+
+  (desc "org-redmine-get-issue-all : Can't get issues")
+  (expect "OrgRedmine - Not retrieved: Can't get issues on http://localhost
+"
+    (stub call-process => 22)
+    (let ((org-redmine-uri "http://localhost"))
+      (save-excursion
+        (set-buffer (get-buffer-create "*Messages*"))
+        (erase-buffer)
+        (org-redmine-get-issue-all nil)
+        (buffer-string))))
+
+  (desc "org-redmine-get-issue-all : require api key to get issues assigned to me")
+  (expect "Warning: To use, required API Key
+"
+    (let ((org-redmine-api-key nil) (org-redmine-uri "http://localhost"))
+      (stub org-redmine-curl-get => fixture-issue-all-json)
+      (save-excursion
+        (set-buffer (get-buffer-create "*Messages*"))
+        (erase-buffer)
+        (org-redmine-get-issue-all t)
+        (buffer-string))))
+
+  )

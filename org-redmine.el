@@ -77,6 +77,11 @@ see http://www.redmine.org/projects/redmine/wiki/Rest_api#Collection-resources-a
         ("%v_n%"     "fixed_version" "name")
         ("%v_i%"     "fixed_version" "id")))
 
+;;------------------------------
+;; org-redmine error signals
+;;------------------------------
+(put 'org-redmine-exception-not-retrieved 'error-message "OrgRedmine - Not retrieved")
+(put 'org-redmine-exception-not-retrieved 'error-conditions '(org-redmine-exception-not-retrieved error))
 
 ;;------------------------------
 ;; org-redmine utility functions
@@ -130,23 +135,22 @@ Example:
 ;;------------------------------
 (defun org-redmine-curl-get (uri)
   ""
-  (condition-case err
-      (progn
-        (ignore-errors (kill-buffer org-redmine-curl-buffer))
-        (call-process "curl" nil `(,org-redmine-curl-buffer nil) nil
-                      "-X" "GET"
-                      "-H" "Content-Type:application/json"
-                      uri)
-        (message uri)
-        (save-current-buffer
-          (set-buffer org-redmine-curl-buffer)
-          (let ((json-object-type 'hash-table)
-                (json-array-type 'list))
-            (condition-case err
-                (json-read-from-string (buffer-string))
-              (json-readtable-error
-               (message "%s: Non JSON data because of a server side exception. See %s" (error-message-string err) org-redmine-curl-buffer))))))
-    (file-error (message (format "%s" (error-message-string err))))))
+  (ignore-errors (kill-buffer org-redmine-curl-buffer))
+  (unless (eq 0 (call-process "curl" nil `(,org-redmine-curl-buffer nil) nil
+                              "-f"
+                              "-X" "GET"
+                              "-H" "Content-Type:application/json"
+                              uri))
+    (signal 'org-redmine-exception-not-retrieved "The requested URL returned error"))
+  (save-current-buffer
+    (set-buffer org-redmine-curl-buffer)
+    (let ((json-object-type 'hash-table)
+          (json-array-type 'list))
+      (condition-case err
+          (json-read-from-string (buffer-string))
+        (json-readtable-error
+         (message "%s: Non JSON data because of a server side exception. See %s"
+                  (error-message-string err) org-redmine-curl-buffer))))))
 
 ;;------------------------------
 ;; org-redmine template functions
@@ -288,9 +292,14 @@ if ME is t, return issues are assigned to user.
              (unless org-redmine-api-key
                (message "Warning: To use, required API Key"))))
     (setq query (orutil-http-query querylist))
-    (setq issue-all (org-redmine-curl-get
-                     (concat org-redmine-uri "/issues.json?" query)))
-    (orutil-gethash issue-all "issues")))
+    (condition-case err
+        (progn
+          (setq issue-all (org-redmine-curl-get
+                           (concat org-redmine-uri "/issues.json?" query)))
+          (orutil-gethash issue-all "issues"))
+      (org-redmine-exception-not-retrieved
+       (message "%s: Can't get issues on %s"
+                (error-message-string err) org-redmine-uri)))))
 
 (defun org-redmine-transformer-issues-source (issues)
   "Transform issues to `anything' source.
@@ -340,9 +349,15 @@ Example.
   ""
   (interactive "sIssue ID: ")
   (let* ((query (orutil-http-query (list (cons "key" org-redmine-api-key))))
-         (issue (org-redmine-curl-get (format "%s/issues/%s.json?%s"
-                                              org-redmine-uri issue-id query))))
-    (org-redmine-insert-subtree (orutil-gethash issue "issue"))))
+         issue)
+    (condition-case err
+        (progn
+          (setq issue (org-redmine-curl-get
+                       (format "%s/issues/%s.json?%s" org-redmine-uri issue-id query)))
+          (org-redmine-insert-subtree (orutil-gethash issue "issue")))
+      (org-redmine-exception-not-retrieved
+       (message "%s: Can't find issue #%s on %s"
+                (error-message-string err) issue-id org-redmine-uri)))))
 
 (defun org-redmine-anything-show-issue-all (&optional me)
   "Display recent issues using `anything'"
