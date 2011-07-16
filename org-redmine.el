@@ -29,8 +29,16 @@
 (require 'json)
 (require 'anything)
 
+(defconst org-redmine-config-default-limit 25
+  "Default value the number of items to be present in the response.
+default is 25, maximum is 100.
+
+see http://www.redmine.org/projects/redmine/wiki/Rest_api#Collection-resources-and-pagination")
+
 (defvar org-redmine-uri "http://redmine120.dev")
 (defvar org-redmine-api-key nil)
+(defvar org-redmine-limit org-redmine-config-default-limit
+  "The number of items to be present in the response.")
 (defvar org-redmine-curl-buffer "*Org redmine curl buffer*"
   "Buffer curl output")
 (defvar org-redmine-template-header nil
@@ -307,6 +315,23 @@ Example.
        (cons display-value action-value)))
    issues))
 
+;;------------------------------
+;; org-redmine config function
+;;------------------------------
+(defun org-redmine-config-get-limit ()
+  (let ((limit org-redmine-limit))
+    (if (integerp limit)
+        (if (or (< limit 1) (> limit 100))
+            (progn
+              (message (format "Warning: org-redmine-limit is out of range. return default value %s"
+                               org-redmine-config-default-limit))
+              (setq limit org-redmine-config-default-limit)))
+      (progn
+        (message (format "Warning: org-redmine-limit isn't integer. return default value %s"
+                         org-redmine-config-default-limit))
+        (setq limit org-redmine-config-default-limit)))
+    limit))
+    
 ;;------------------------------
 ;; org-redmine user function
 ;;------------------------------

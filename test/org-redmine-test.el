@@ -178,4 +178,31 @@
        (lambda (i)
          (cons (car i) (org-redmine-issue-uri (cdr i))))
        (org-redmine-transformer-issues-source fixture-issue-all))))
+
+  (desc "org-redmine-config-get-limit")
+  (expect 25
+    (let ((org-redmine-limit 25))
+          (org-redmine-config-get-limit)))
+  (expect 1
+    (let ((org-redmine-limit 1))
+      (org-redmine-config-get-limit)))
+  (expect 100
+    (let ((org-redmine-limit 100))
+      (org-redmine-config-get-limit)))
+
+  (desc "org-redmine-config-get-limit : out of range (1-100)")
+  (expect 25
+    (let ((org-redmine-limit 0))
+      (org-redmine-config-get-limit)))
+  (expect 25
+    (let ((org-redmine-limit 101))
+      (org-redmine-config-get-limit)))
+
+  (desc "org-redmine-config-get-limit : not integer")
+  (expect 25
+    (let ((org-redmine-limit "a"))
+      (org-redmine-config-get-limit)))
+  (expect 25
+    (let ((org-redmine-limit '()))
+      (org-redmine-config-get-limit)))
 )
