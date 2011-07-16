@@ -69,6 +69,10 @@
         ("%v_n%"     "fixed_version" "name")
         ("%v_i%"     "fixed_version" "id")))
 
+
+;;------------------------------
+;; org-redmine utility functions
+;;------------------------------
 (defun orutil-join (list &optional sep func)
   (mapconcat (lambda (x) (if func (funcall func x) (format "%s" x))) list (or sep ",")))
 
@@ -78,115 +82,6 @@
                     (format "%s=%s"
                             (url-hexify-string (car x))
                             (url-hexify-string (cdr x))))))
-
-(defun org-redmine-curl-get (uri)
-  ""
-  (condition-case err
-      (progn
-        (ignore-errors (kill-buffer org-redmine-curl-buffer))
-        (call-process "curl" nil `(,org-redmine-curl-buffer nil) nil
-                      "-X" "GET"
-                      "-H" "Content-Type:application/json"
-                      uri)
-        (message uri)
-        (save-current-buffer
-          (set-buffer org-redmine-curl-buffer)
-          (let ((json-object-type 'hash-table)
-                (json-array-type 'list))
-            (condition-case err
-                (json-read-from-string (buffer-string))
-              (json-readtable-error
-               (message "%s: Non JSON data because of a server side exception. See %s" (error-message-string err) org-redmine-curl-buffer))))))
-    (file-error (message (format "%s" (error-message-string err))))))
-
-(defun org-redmine-template-%-sequence-to-attribute (sequence)
-  ""
-  (cdr (assoc sequence org-redmine-template-%-sequences)))
-
-(defun org-redmine-issue-attribute (issue attribute)
-  ""
-  (format "%s" (apply 'orutil-gethash issue attribute)))
-
-(defun org-redmine-issue-attribute-from-sequence (issue sequence)
-  ""
-  (org-redmine-issue-attribute
-   issue
-   (org-redmine-template-%-sequence-to-attribute sequence)))
-
-(defun org-redmine-insert-header (issue level)
-  ""
-  (let ((template (or org-redmine-template-header
-                      (nth 0 org-redmine-template-set)
-                      org-redmine-template-header-default))
-        (stars (make-string level ?*)))
-    (insert
-     (with-temp-buffer
-       (erase-buffer)
-       (insert (concat stars " "))
-       (insert template)
-       (goto-char (point-min))
-       (while (re-search-forward "\\(%[a-z_]+%\\)" nil t)
-         (let ((attr (org-redmine-template-%-sequence-to-attribute (match-string 1))))
-           (if attr (replace-match (org-redmine-issue-attribute issue attr) t t))))
-       (buffer-string)))
-  ))
-
-(defun org-redmine-insert-property (issue)
-  ""
-  (let* ((properties (or org-redmine-template-property
-                         (nth 1 org-redmine-template-set)
-                         '()))
-         property key value)
-    (while properties
-      (setq property (car properties))
-      (org-set-property (car property)
-                        (org-redmine-issue-attribute-from-sequence issue (cdr property)))
-      (setq properties (cdr properties)))
-  ))
-
-(defun org-redmine-escaped-% ()
-  "Check if % was escaped - if yes, unescape it now."
-  (if (equal (char-before (match-beginning 0)) ?\\)
-      (progn
-	(delete-region (1- (match-beginning 0)) (match-beginning 0))
-	t)
-    nil))
-
-(defun org-redmine-insert-subtree (issue)
-  ""
-  (let ((level (or (org-current-level) 1)))
-    (outline-next-visible-heading 1)
-    (org-redmine-insert-header issue level)
-    (insert "\n")
-    (outline-previous-visible-heading 1)
-    (org-redmine-insert-property issue)
-    ))
-
-(defun org-redmine-get-issue ()
-  ""
-  (interactive)
-  (let* ((issue-id (read-from-minibuffer "Issue ID:"))
-         (query (concat "key=" org-redmine-api-key))
-         (issue (org-redmine-curl-get (format "%s/issues/%s.json?%s"
-                                              org-redmine-uri issue-id query))))
-    (org-redmine-insert-subtree (orutil-gethash issue "issue"))))
-
-(defun org-redmine-get-issue-all (me)
-  "Return the recent issues.
-
-With prefix arg ME, return issues are assigned to user.
-"
-  (let* ((assigned (if me "me" ""))
-         (key      (or org-redmine-api-key ""))
-         ;; (query (orutil-http-query '(("key" . `key)
-         ;;                                ("assigned_to_id" . `assigned))
-         ;;                              ))
-         (query (concat "key="(or org-redmine-api-key "")))
-         (issues-all (org-redmine-curl-get
-                      (concat org-redmine-uri "/issues.json?" query))))
-                      ;;(concat org-redmine-uri "/issues.json?" query))))
-  (orutil-gethash issues-all "issues")))
-
 
 (defun orutil-gethash (table k &rest keys)
   "Execute `gethash' recursive to TABLE.
@@ -222,6 +117,88 @@ Example:
           (setq ret nil)))
       ret)))
 
+;;------------------------------
+;; org-redmine connection functions
+;;------------------------------
+(defun org-redmine-curl-get (uri)
+  ""
+  (condition-case err
+      (progn
+        (ignore-errors (kill-buffer org-redmine-curl-buffer))
+        (call-process "curl" nil `(,org-redmine-curl-buffer nil) nil
+                      "-X" "GET"
+                      "-H" "Content-Type:application/json"
+                      uri)
+        (message uri)
+        (save-current-buffer
+          (set-buffer org-redmine-curl-buffer)
+          (let ((json-object-type 'hash-table)
+                (json-array-type 'list))
+            (condition-case err
+                (json-read-from-string (buffer-string))
+              (json-readtable-error
+               (message "%s: Non JSON data because of a server side exception. See %s" (error-message-string err) org-redmine-curl-buffer))))))
+    (file-error (message (format "%s" (error-message-string err))))))
+
+;;------------------------------
+;; org-redmine template functions
+;;------------------------------
+(defun org-redmine-template-%-to-attrkey (sequence)
+  "Transform %-sequence to issue attribute list (see `org-redmine-template-%-sequences').
+
+Example.
+  (setq org-redmine-template-%-sequences
+        '((\"%as_i%\"  \"assigned_to\" \"id\")
+          (\"%s%\"     \"subject\")
+          (\"%au_n%\"  \"author\" \"name\")))
+
+  (org-redmine-template-%-to-attrkey \"%as_i%\") ;; => '(\"assigned_to\" \"id\")
+  (org-redmine-template-%-to-attrkey \"%s%\")    ;; => '(\"subject\")
+"
+  (cdr (assoc sequence org-redmine-template-%-sequences)))
+
+;;------------------------------
+;; org-redmine issue function
+;;------------------------------
+(defun org-redmine-issue-attrvalue (issue attrkey)
+  "Get attribute value for ATTRKEY of ISSUE
+
+Example:
+  issue = {
+           \"subject\" : \"Subject\",
+           \"project\" : {
+                    \"id\"   : 1,
+                    \"name\" : \"PrijectName\"
+                   }
+          } ;; => pseudo issue like json format
+
+  (org-redmine-issue-attrvalue issue '(\"subject\"))      ;; => \"Subject\"
+  (org-redmine-issue-attrvalue issue '(\"project\" \"id\")) ;; => 1
+"
+  (format "%s" (apply 'orutil-gethash issue attrkey)))
+
+(defun org-redmine-issue-attrvalue-from-% (issue seq)
+  "Get attribute value of ISSUE using %-sequence SEQ
+
+Example:
+  issue = {
+           \"subject\" : \"Subject\",
+           \"project\" : {
+                    \"id\"   : 1,
+                    \"name\" : \"PrijectName\"
+                   }
+          } ;; => pseudo issue like json format
+
+  (setq org-redmine-template-%-sequences
+        '((\"%p_i%\"  \"project\" \"id\")
+          (\"%p_i%\"  \"project\" \"name\")
+          (\"%s%\"    \"subject\")))
+
+  (org-redmine-issue-attrvalue issue \"%s%\"))   ;; => \"Subject\"
+  (org-redmine-issue-attrvalue issue \"%p_i%\")) ;; => 1
+"
+  (org-redmine-issue-attrvalue issue (org-redmine-template-%-to-attrkey seq)))
+
 
 (defun org-redmine-issue-uri (issue)
   "Return uri of ISSUE with `org-redmine-uri'.
@@ -233,6 +210,77 @@ Example.
   (setq org-redmine-uri \"http://localhost/redmine\")
   (org-redmine-issue-uri issue) ;; => \"http://localhost/redmine/issues/1\""
   (format "%s/issues/%s" org-redmine-uri (orutil-gethash issue "id")))
+
+;;------------------------------
+;; org-redmine buffer function
+;;------------------------------
+(defun org-redmine-insert-header (issue level)
+  ""
+  (let ((template (or org-redmine-template-header
+                      (nth 0 org-redmine-template-set)
+                      org-redmine-template-header-default))
+        (stars (make-string level ?*)))
+    (insert
+     (with-temp-buffer
+       (erase-buffer)
+       (insert (concat stars " "))
+       (insert template)
+       (goto-char (point-min))
+       (while (re-search-forward "\\(%[a-z_]+%\\)" nil t)
+         (let ((attr (org-redmine-template-%-to-attrkey (match-string 1))))
+           (if attr (replace-match (org-redmine-issue-attrvalue issue attr) t t))))
+       (buffer-string)))
+  ))
+
+(defun org-redmine-insert-property (issue)
+  ""
+  (let* ((properties (or org-redmine-template-property
+                         (nth 1 org-redmine-template-set)
+                         '()))
+         property key value)
+    (while properties
+      (setq property (car properties))
+      (org-set-property (car property)
+                        (org-redmine-issue-attrvalue-from-% issue (cdr property)))
+      (setq properties (cdr properties)))
+  ))
+
+(defun org-redmine-escaped-% ()
+  "Check if % was escaped - if yes, unescape it now."
+  (if (equal (char-before (match-beginning 0)) ?\\)
+      (progn
+	(delete-region (1- (match-beginning 0)) (match-beginning 0))
+	t)
+    nil))
+
+(defun org-redmine-insert-subtree (issue)
+  ""
+  (let ((level (or (org-current-level) 1)))
+    (outline-next-visible-heading 1)
+    (org-redmine-insert-header issue level)
+    (insert "\n")
+    (outline-previous-visible-heading 1)
+    (org-redmine-insert-property issue)
+    ))
+
+;;------------------------------
+;; org-redmine sources for user function
+;;------------------------------
+(defun org-redmine-get-issue-all (me)
+  "Return the recent issues.
+
+With prefix arg ME, return issues are assigned to user.
+"
+  (let* ((assigned (if me "me" ""))
+         (key      (or org-redmine-api-key ""))
+         ;; (query (orutil-http-query '(("key" . `key)
+         ;;                                ("assigned_to_id" . `assigned))
+         ;;                              ))
+         (query (concat "key="(or org-redmine-api-key "")))
+         (issues-all (org-redmine-curl-get
+                      (concat org-redmine-uri "/issues.json?" query))))
+                      ;;(concat org-redmine-uri "/issues.json?" query))))
+  (orutil-gethash issues-all "issues")))
 
 (defun org-redmine-transformer-issues-source (issues)
   "Transform issues to `anything' source.
@@ -257,6 +305,18 @@ Example.
        (setq action-value i)
        (cons display-value action-value)))
    issues))
+
+;;------------------------------
+;; org-redmine user function
+;;------------------------------
+(defun org-redmine-get-issue ()
+  ""
+  (interactive)
+  (let* ((issue-id (read-from-minibuffer "Issue ID:"))
+         (query (concat "key=" org-redmine-api-key))
+         (issue (org-redmine-curl-get (format "%s/issues/%s.json?%s"
+                                              org-redmine-uri issue-id query))))
+    (org-redmine-insert-subtree (orutil-gethash issue "issue"))))
 
 (defun org-redmine-anything-show-issue-all (me)
   "Display recent issues using `anything'"

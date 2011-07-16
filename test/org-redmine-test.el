@@ -32,19 +32,19 @@
   (expect "3%2%1"
     (orutil-join '(3 "2" 1) "%"))
 
-  (desc "org-redmine-template-%-sequence-to-attribute")
+  (desc "org-redmine-template-%-to-attrkey")
   (expect '("id")
-    (org-redmine-template-%-sequence-to-attribute "%i%"))
+    (org-redmine-template-%-to-attrkey "%i%"))
   (expect '("status" "name")
-    (org-redmine-template-%-sequence-to-attribute "%s_n%"))
+    (org-redmine-template-%-to-attrkey "%s_n%"))
   (expect '("status" "id")
-    (org-redmine-template-%-sequence-to-attribute "%s_i%"))
+    (org-redmine-template-%-to-attrkey "%s_i%"))
 
-  (desc "org-redmine-issue-attribute")
+  (desc "org-redmine-issue-attrvalue")
   (expect "新規"
-    (org-redmine-issue-attribute fixture-issue '("status" "name")))
+    (org-redmine-issue-attrvalue fixture-issue '("status" "name")))
   (expect "1"
-    (org-redmine-issue-attribute fixture-issue '("id")))
+    (org-redmine-issue-attrvalue fixture-issue '("id")))
 
   (desc "org-redmine-insert-header")
   (expect "* #1 軌跡検知 :機能:"
