@@ -269,18 +269,19 @@ Example.
 (defun org-redmine-get-issue-all (me)
   "Return the recent issues.
 
-With prefix arg ME, return issues are assigned to user.
+if ME is t, return issues are assigned to user.
 "
-  (let* ((assigned (if me "me" ""))
-         (key      (or org-redmine-api-key ""))
-         ;; (query (orutil-http-query '(("key" . `key)
-         ;;                                ("assigned_to_id" . `assigned))
-         ;;                              ))
-         (query (concat "key="(or org-redmine-api-key "")))
-         (issues-all (org-redmine-curl-get
-                      (concat org-redmine-uri "/issues.json?" query))))
-                      ;;(concat org-redmine-uri "/issues.json?" query))))
-  (orutil-gethash issues-all "issues")))
+  (let* ((querylist (list (cons "key" (or org-redmine-api-key ""))))
+         query issue-all)
+
+    (if me (progn
+             (add-to-list 'querylist (cons "assigned_to_id" "me"))
+             (unless org-redmine-api-key
+               (message "Warning: To use, required API Key"))))
+    (setq query (orutil-http-query querylist))
+    (setq issue-all (org-redmine-curl-get
+                     (concat org-redmine-uri "/issues.json?" query)))
+    (orutil-gethash issue-all "issues")))
 
 (defun org-redmine-transformer-issues-source (issues)
   "Transform issues to `anything' source.
@@ -318,7 +319,7 @@ Example.
                                               org-redmine-uri issue-id query))))
     (org-redmine-insert-subtree (orutil-gethash issue "issue"))))
 
-(defun org-redmine-anything-show-issue-all (me)
+(defun org-redmine-anything-show-issue-all (&optional me)
   "Display recent issues using `anything'"
   (interactive "P")
   (anything 
