@@ -3,6 +3,17 @@
 ;; setup
 (require 'org-redmine-test-fixture)
 
+;; batch 処理の時に、message 関数が端末に出力されるのがいやだったので wrap した
+(when noninteractive
+  (defvar org-redmine-expectation-message nil)
+
+  (defadvice message (around message-to-variable activate)
+    (setq org-redmine-expectation-message (apply 'format format-string args)))
+
+  (defadvice current-message (around get-message-from-variable activate)
+    (setq ad-return-value org-redmine-expectation-message))
+)
+
 (defun change-buffer-to (mode)
   (if (version< "23.2" emacs-version)
       (setq default-major-mode mode)
@@ -60,6 +71,14 @@
         (change-buffer-to 'org-mode)
         (org-redmine-insert-header fixture-issue 1)
         (buffer-string))))
+
+  ;; (desc "org-redmine-insert-header escaped %")
+  ;; (expect "* [%p_n%] #%i% by %Wataru MIYAGUNI"
+  ;;   (with-current-buffer (exps-tmpbuf)
+  ;;     (let ((org-redmine-template-header "[%%p_n%%] #%%i%% by %%%as_n%"))
+  ;;       (change-buffer-to 'org-mode)
+  ;;       (org-redmine-insert-header fixture-issue 1)
+  ;;       (buffer-string))))
 
   (desc "org-redmine-insert-property")
   (expect "\
@@ -159,15 +178,11 @@
         (buffer-string))))
 
   (desc "org-redmine-get-issue : Can't find issue id")
-  (expect "OrgRedmine - Not retrieved: Can't find issue #1 on http://localhost
-"
+  (expect "OrgRedmine - Not retrieved: Can't find issue #1 on http://localhost"
     (stub call-process => 22)
     (let ((org-redmine-uri "http://localhost"))
-      (save-excursion
-        (set-buffer (get-buffer-create "*Messages*"))
-        (erase-buffer)
-        (org-redmine-get-issue "1")
-        (buffer-string))))
+      (org-redmine-get-issue "1")
+      (current-message)))
 
   (desc "org-redmine-issue-uri")
   (expect "http://localhost/issues/1"
@@ -219,25 +234,16 @@
       (org-redmine-config-get-limit)))
 
   (desc "org-redmine-get-issue-all : Can't get issues")
-  (expect "OrgRedmine - Not retrieved: Can't get issues on http://localhost
-"
+  (expect "OrgRedmine - Not retrieved: Can't get issues on http://localhost"
     (stub call-process => 22)
     (let ((org-redmine-uri "http://localhost"))
-      (save-excursion
-        (set-buffer (get-buffer-create "*Messages*"))
-        (erase-buffer)
-        (org-redmine-get-issue-all nil)
-        (buffer-string))))
+      (org-redmine-get-issue-all nil)
+      (current-message)))
 
   (desc "org-redmine-get-issue-all : require api key to get issues assigned to me")
-  (expect "Warning: To use, required API Key
-"
+  (expect "Warning: To use, required API Key"
     (let ((org-redmine-api-key nil) (org-redmine-uri "http://localhost"))
       (stub org-redmine-curl-get => fixture-issue-all-json)
-      (save-excursion
-        (set-buffer (get-buffer-create "*Messages*"))
-        (erase-buffer)
-        (org-redmine-get-issue-all t)
-        (buffer-string))))
-
+      (org-redmine-get-issue-all t)
+      (current-message)))
   )
