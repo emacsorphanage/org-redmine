@@ -35,6 +35,34 @@ default is 25, maximum is 100.
 
 see http://www.redmine.org/projects/redmine/wiki/Rest_api#Collection-resources-and-pagination")
 
+(defconst org-redmine-template-header-default "#%i% %s% :%t_n%:")
+(defconst org-redmine-template-%-sequences
+  '(("%as_i%"    "assigned_to" "id")
+    ("%as_n%"    "assigned_to" "name")
+    ("%au_i%"    "author" "id")
+    ("%au_n%"    "author" "name")
+    ("%c_i%"     "category" "id")
+    ("%c_n%"     "category" "name")
+    ("%c_date%"  "created_on")
+    ("%d%"       "description")
+    ("%done%"    "done_ratio")
+    ("%d_date%"  "due_date")
+    ("%i%"       "id")
+    ("%pr_i%"    "priority" "id")
+    ("%pr_n%"    "priority" "name")
+    ("%p_i%"     "project" "id")
+    ("%p_n%"     "project" "name")
+    ("%s_date%"  "stard_date")
+    ("%s_i%"     "status" "id")
+    ("%s_n%"     "status" "name")
+    ("%s%"       "subject")
+    ("%t_i%"     "tracker" "id")
+    ("%t_n%"     "tracker" "name")
+    ("%u_date%"  "updated_on")
+    ("%v_n%"     "fixed_version" "name")
+    ("%v_i%"     "fixed_version" "id")))
+
+
 (defvar org-redmine-uri "http://redmine120.dev")
 (defvar org-redmine-api-key nil)
 (defvar org-redmine-limit org-redmine-config-default-limit
@@ -50,38 +78,13 @@ see http://www.redmine.org/projects/redmine/wiki/Rest_api#Collection-resources-a
     nil
     "%d"))
 
-(setq org-redmine-template-header-default "#%i% %s% :%t_n%:")
-(setq org-redmine-template-%-sequences
-      '(("%as_i%"    "assigned_to" "id")
-        ("%as_n%"    "assigned_to" "name")
-        ("%au_i%"    "author" "id")
-        ("%au_n%"    "author" "name")
-        ("%c_i%"     "category" "id")
-        ("%c_n%"     "category" "name")
-        ("%c_date%"  "created_on")
-        ("%d%"       "description")
-        ("%done%"    "done_ratio")
-        ("%d_date%"  "due_date")
-        ("%i%"       "id")
-        ("%pr_i%"    "priority" "id")
-        ("%pr_n%"    "priority" "name")
-        ("%p_i%"     "project" "id")
-        ("%p_n%"     "project" "name")
-        ("%s_date%"  "stard_date")
-        ("%s_i%"     "status" "id")
-        ("%s_n%"     "status" "name")
-        ("%s%"       "subject")
-        ("%t_i%"     "tracker" "id")
-        ("%t_n%"     "tracker" "name")
-        ("%u_date%"  "updated_on")
-        ("%v_n%"     "fixed_version" "name")
-        ("%v_i%"     "fixed_version" "id")))
-
 ;;------------------------------
 ;; org-redmine error signals
 ;;------------------------------
 (put 'org-redmine-exception-not-retrieved 'error-message "OrgRedmine - Not retrieved")
 (put 'org-redmine-exception-not-retrieved 'error-conditions '(org-redmine-exception-not-retrieved error))
+(put 'org-redmine-exception-no-set-api-key 'error-message "OrgRedmine - No set API Key")
+(put 'org-redmine-exception-no-set-api-key 'error-conditions '(org-redmine-exception-no-set-api-key error))
 
 ;;------------------------------
 ;; org-redmine utility functions
@@ -261,25 +264,26 @@ Example.
   "Check if % was escaped - if yes, unescape it now."
   (if (equal (char-before (match-beginning 0)) ?\\)
       (progn
-	(delete-region (1- (match-beginning 0)) (match-beginning 0))
-	t)
+        (delete-region (1- (match-beginning 0)) (match-beginning 0))
+        t)
     nil))
 
 (defun org-redmine-insert-subtree (issue)
   ""
-  (let ((level (or (org-current-level) 1)))
-    (outline-next-visible-heading 1)
-    (org-redmine-insert-header issue level)
-    (insert "\n")
-    (outline-previous-visible-heading 1)
-    (org-redmine-insert-property issue)
-    ))
+  (if (hash-table-p issue)
+      (let ((level (or (org-current-level) 1)))
+        (outline-next-visible-heading 1)
+        (org-redmine-insert-header issue level)
+        (insert "\n")
+        (outline-previous-visible-heading 1)
+        (org-redmine-insert-property issue))))
 
 ;;------------------------------
 ;; org-redmine sources for user function
 ;;------------------------------
 (defun org-redmine-get-issue-all (me)
-  "Return the recent issues.
+  "Return the recent issues (list of hash-table).
+When error occurs, return list of error message.
 
 if ME is t, return issues are assigned to user.
 "
@@ -287,19 +291,23 @@ if ME is t, return issues are assigned to user.
                           (cons "limit" (org-redmine-config-get-limit t))))
          query issue-all)
 
-    (if me (progn
-             (add-to-list 'querylist (cons "assigned_to_id" "me"))
-             (unless org-redmine-api-key
-               (message "Warning: To use, required API Key"))))
-    (setq query (orutil-http-query querylist))
     (condition-case err
         (progn
+          (if me
+              (progn
+                (add-to-list 'querylist (cons "assigned_to_id" "me"))
+                (unless org-redmine-api-key
+                  (signal 'org-redmine-exception-no-set-api-key ""))))
+          (setq query (orutil-http-query querylist))
           (setq issue-all (org-redmine-curl-get
                            (concat org-redmine-uri "/issues.json?" query)))
           (orutil-gethash issue-all "issues"))
+      (org-redmine-exception-no-set-api-key
+       (message "%s: Required API Key to use this" (error-message-string err))
+       (list (current-message)))
       (org-redmine-exception-not-retrieved
-       (message "%s: Can't get issues on %s"
-                (error-message-string err) org-redmine-uri)))))
+       (message "%s: Can't get issues on %s" (error-message-string err) org-redmine-uri)
+       (list (current-message))))))
 
 (defun org-redmine-transformer-issues-source (issues)
   "Transform issues to `anything' source.
@@ -314,15 +322,20 @@ Example.
 "
   (mapcar
    (lambda (i)
-     (let (display-value action-value)
-       (setq display-value (format "#%s [%s] %s / %s"
-                                   (orutil-gethash i "id")
-                                   (orutil-gethash i "project" "name")
-                                   (orutil-gethash i "subject")
-                                   (or (orutil-gethash i "assigned_to" "name")
-                                       "未割り当て")))
-       (setq action-value i)
-       (cons display-value action-value)))
+     (cond ((stringp i)
+            (cons i nil))
+           ((hash-table-p i)
+            (let (display-value action-value)
+              (setq display-value
+                    (format "#%s [%s] %s / %s"
+                            (orutil-gethash i "id")
+                            (orutil-gethash i "project" "name")
+                            (orutil-gethash i "subject")
+                            (or (orutil-gethash i "assigned_to" "name")
+                                "未割り当て")))
+              (setq action-value i)
+              (cons display-value action-value)))
+           ))
    issues))
 
 ;;------------------------------

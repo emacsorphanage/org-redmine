@@ -202,6 +202,10 @@
          (cons (car i) (org-redmine-issue-uri (cdr i))))
        (org-redmine-transformer-issues-source fixture-issue-all))))
 
+  (desc "org-redmine-transformer-issues-source : arg is string")
+  (expect '(("gongo" . nil))
+    (org-redmine-transformer-issues-source '("gongo")))
+
   (desc "org-redmine-config-get-limit")
   (expect 25
     (let ((org-redmine-limit 25))
@@ -234,16 +238,14 @@
       (org-redmine-config-get-limit)))
 
   (desc "org-redmine-get-issue-all : Can't get issues")
-  (expect "OrgRedmine - Not retrieved: Can't get issues on http://localhost"
+  (expect '("OrgRedmine - Not retrieved: Can't get issues on http://localhost")
     (stub call-process => 22)
     (let ((org-redmine-uri "http://localhost"))
-      (org-redmine-get-issue-all nil)
-      (current-message)))
+      (org-redmine-get-issue-all nil)))
 
   (desc "org-redmine-get-issue-all : require api key to get issues assigned to me")
-  (expect "Warning: To use, required API Key"
+  (expect '("OrgRedmine - No set API Key: Required API Key to use this")
     (let ((org-redmine-api-key nil) (org-redmine-uri "http://localhost"))
       (stub org-redmine-curl-get => fixture-issue-all-json)
-      (org-redmine-get-issue-all t)
-      (current-message)))
+      (org-redmine-get-issue-all t)))
   )
