@@ -248,4 +248,28 @@
     (let ((org-redmine-api-key nil) (org-redmine-uri "http://localhost"))
       (stub org-redmine-curl-get => fixture-issue-all-json)
       (org-redmine-get-issue-all t)))
+
+  (desc "orutil-date-to-float")
+  (expect 1309954921.0
+    (orutil-date-to-float "2011/07/06 21:22:01 +0900"))
+  (expect (error org-redmine-exception-no-date-format "No date format")
+    (orutil-date-to-float "2011/07/06 21:22:01 ?0900"))
+
+  (desc "orutil-date-cmp")
+  (expect t ;; check second
+    (let ((d1 "2011/07/06 21:22:01 +0900")
+          (d2 "2011/07/06 21:22:02 +0900"))
+      (orutil-date-cmp d1 d2)))
+  (expect t ;; check date
+    (let ((d1 "2011/07/06 21:22:01 +0900")
+          (d2 "2011/07/07 21:22:01 +0900"))
+      (orutil-date-cmp d1 d2)))
+  (expect t ;; check timezone
+    (let ((d1 "2011/07/06 21:22:01 +0900")
+          (d2 "2011/07/06 21:22:01 +0800"))
+      (orutil-date-cmp d1 d2)))
+  (expect nil ;; check timezone
+    (let ((d1 "2011/07/06 21:22:01 -0900")
+          (d2 "2011/07/06 21:22:01 +0900"))
+      (orutil-date-cmp d1 d2)))
   )

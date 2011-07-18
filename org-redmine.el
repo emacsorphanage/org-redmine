@@ -85,6 +85,8 @@ see http://www.redmine.org/projects/redmine/wiki/Rest_api#Collection-resources-a
 (put 'org-redmine-exception-not-retrieved 'error-conditions '(org-redmine-exception-not-retrieved error))
 (put 'org-redmine-exception-no-set-api-key 'error-message "OrgRedmine - No set API Key")
 (put 'org-redmine-exception-no-set-api-key 'error-conditions '(org-redmine-exception-no-set-api-key error))
+(put 'org-redmine-exception-no-date-format 'error-message "OrgRedmine - No date format")
+(put 'org-redmine-exception-no-date-format 'error-conditions '(org-redmine-exception-no-date-format error))
 
 ;;------------------------------
 ;; org-redmine utility functions
@@ -132,6 +134,52 @@ Example:
               (setq keys (cdr keys)))
           (setq ret nil)))
       ret)))
+
+(defun orutil-date-to-float (s)
+  "Transform date format string to float.
+
+Format is
+  %Y/%m/%d %H:%M:%S (+|-)%z
+  ;; eg. 2011/07/06 21:22:01 +0900
+
+Example.
+
+  (orutil-date-to-float \"2011/07/06 21:22:01 +0900\")
+  ;; => 1309954921.0
+
+  (orutil-date-to-float \"2011/07/06 2a:22:01 ?0900\")
+  ;; => nil
+"
+  (unless (string-match "^\\([0-9]+\\)/\\([0-9]+\\)/\\([0-9]+\\) \\([0-9]+\\):\\([0-9]+\\):\\([0-9]+\\) \\([+\\-]\\)\\([0-9][0-9]\\)\\([0-9][0-9]\\)$" s)
+    (signal 'org-redmine-exception-no-date-format "No date format"))
+  (let ((year          (string-to-int (match-string 1 s)))
+        (month         (string-to-int (match-string 2 s)))
+        (day           (string-to-int (match-string 3 s)))
+        (hour          (string-to-int (match-string 4 s)))
+        (minutes       (string-to-int (match-string 5 s)))
+        (seconds       (string-to-int (match-string 6 s)))
+        (zone-sign     (string-to-int (match-string 7 s)))
+        (zone-hour     (string-to-int (match-string 8 s)))
+        (zone-minutes (string-to-int (match-string 9 s)))
+        zone)
+    (setq zone (* (if (eq zone-sign "-") -1 1)
+                  (+ zone-minutes (* 3600 zone-hour))))
+    (float-time (encode-time seconds minutes hour day month year nil nil zone))))
+
+(defun orutil-date-cmp (date1 date2)
+  "Return t if DATE1 is before DATE2, nil otherwise.
+
+DATE1 and DATE2 formatted defined by `orutil-date-to-float'
+
+Example.
+
+  (orutil-date-cmp \"2011/07/06 21:22:01 +0900\" \"2011/07/07 21:22:01 +0900\")
+  ;; => t
+
+  (orutil-date-cmp \"2011/07/06 21:22:01 +0900\" \"2011/07/06 21:22:01 +0800\")
+  ;; => t
+"
+  (< (orutil-date-to-float date1) (orutil-date-to-float date2)))
 
 ;;------------------------------
 ;; org-redmine connection functions
@@ -252,7 +300,7 @@ Example.
   (let* ((properties (or org-redmine-template-property
                          (nth 1 org-redmine-template-set)
                          '()))
-         property key value)
+         property key value)    
     (while properties
       (setq property (car properties))
       (org-set-property (car property)
