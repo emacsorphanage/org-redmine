@@ -84,6 +84,8 @@
   (expect "\
 * hoge
   :PROPERTIES:
+  :issue_id: 1
+  :updated_on: 2011/07/06 21:22:01 +0900
   :project_name: 肉体言語 Tython
   :author:   Wataru MIYAGUNI
   :END:
@@ -99,6 +101,8 @@
   (expect "\
 * hoge
   :PROPERTIES:
+  :issue_id: 1
+  :updated_on: 2011/07/06 21:22:01 +0900
   :subject:  軌跡検知
   :END:
 "
@@ -112,6 +116,10 @@
   (desc "org-redmine-insert-property template-property is empty")
   (expect "\
 * hoge
+  :PROPERTIES:
+  :issue_id: 1
+  :updated_on: 2011/07/06 21:22:01 +0900
+  :END:
 "
     (with-current-buffer (exps-tmpbuf)
       (change-buffer-to 'org-mode)
@@ -123,6 +131,8 @@
   (expect "\
 * #1 軌跡検知 :機能:
   :PROPERTIES:
+  :issue_id: 1
+  :updated_on: 2011/07/06 21:22:01 +0900
   :project_name: 肉体言語 Tython
   :author:   Wataru MIYAGUNI
   :END:
@@ -142,6 +152,8 @@
 ** fuga
 ** #1 軌跡検知 :機能:
    :PROPERTIES:
+   :issue_id: 1
+   :updated_on: 2011/07/06 21:22:01 +0900
    :author:   Wataru MIYAGUNI
    :END:
 "
@@ -161,6 +173,8 @@
 ** fuga
 ** 肉体言語 Tython / [1] 新規 :バージョン 0.3:
    :PROPERTIES:
+   :issue_id: 1
+   :updated_on: 2011/07/06 21:22:01 +0900
    :subject:  軌跡検知
    :END:
 ** hago

@@ -301,6 +301,8 @@ Example.
                          (nth 1 org-redmine-template-set)
                          '()))
          property key value)    
+    (org-set-property "issue_id" (int-to-string (orutil-gethash issue "id")))
+    (org-set-property "updated_on" (orutil-gethash issue "updated_on"))
     (while properties
       (setq property (car properties))
       (org-set-property (car property)
