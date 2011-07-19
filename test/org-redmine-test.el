@@ -85,7 +85,7 @@
 * hoge
   :PROPERTIES:
   :issue_id: 1
-  :updated_on: 2011/07/06 21:22:01 +0900
+  :updated_on: 2011/07/06 21:27:04 +0900
   :project_name: 肉体言語 Tython
   :author:   Wataru MIYAGUNI
   :END:
@@ -102,7 +102,7 @@
 * hoge
   :PROPERTIES:
   :issue_id: 1
-  :updated_on: 2011/07/06 21:22:01 +0900
+  :updated_on: 2011/07/06 21:27:04 +0900
   :subject:  軌跡検知
   :END:
 "
@@ -118,7 +118,7 @@
 * hoge
   :PROPERTIES:
   :issue_id: 1
-  :updated_on: 2011/07/06 21:22:01 +0900
+  :updated_on: 2011/07/06 21:27:04 +0900
   :END:
 "
     (with-current-buffer (exps-tmpbuf)
@@ -132,7 +132,7 @@
 * #1 軌跡検知 :機能:
   :PROPERTIES:
   :issue_id: 1
-  :updated_on: 2011/07/06 21:22:01 +0900
+  :updated_on: 2011/07/06 21:27:04 +0900
   :project_name: 肉体言語 Tython
   :author:   Wataru MIYAGUNI
   :END:
@@ -153,7 +153,7 @@
 ** #1 軌跡検知 :機能:
    :PROPERTIES:
    :issue_id: 1
-   :updated_on: 2011/07/06 21:22:01 +0900
+   :updated_on: 2011/07/06 21:27:04 +0900
    :author:   Wataru MIYAGUNI
    :END:
 "
@@ -174,7 +174,7 @@
 ** 肉体言語 Tython / [1] 新規 :バージョン 0.3:
    :PROPERTIES:
    :issue_id: 1
-   :updated_on: 2011/07/06 21:22:01 +0900
+   :updated_on: 2011/07/06 21:27:04 +0900
    :subject:  軌跡検知
    :END:
 ** hago
