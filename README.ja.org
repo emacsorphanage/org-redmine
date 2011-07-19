@@ -54,5 +54,26 @@
     : ;;   :END:
 
     テンプレートで使用できるフォーマットは、org-redmine.el に載っています。
+** テスト
+*** テストに必要な Emacs lisp
+    - [[http://www.emacswiki.org/emacs/el-expectations.el][el-expectations.el]]
+    - [[http://www.emacswiki.org/emacs/el-mock.el][el-mock.el]]
+*** テストの設定
+    *test/run.sh* の以下変数を実行環境に合わせてください
+
+    : ORGMODE_DIR # org-mode ディレクトリ
+    : ANYTHING_DIR # anything.el が置かれているディレクトリ
+    : ELEXPECTATIONS_DIR # el-expectations.el が置かれているディレクトリ
+    : ELMOCK_DIR # el-mock.el が置かれているディレクトリ
+*** 実行
+    : $ make test
+*** 自動テスト
+    org-redmine は [[https://github.com/mynyml/watchr][watchr]] を用いた自動テストを行っています。
+
+    : $ watchr test.watchr
+
+    上記コマンドを実行後、org-redmine.el か test/org-redmine-test.el が変更されたら、
+    自動的にテストが実行されます。
+
 ** ライセンスについて
    このプロジェクトは MAHALO ライセンスです。詳しくは LICENSE.ja ファイルをご覧下さい。
