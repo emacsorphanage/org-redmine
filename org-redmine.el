@@ -35,6 +35,8 @@ default is 25, maximum is 100.
 
 see http://www.redmine.org/projects/redmine/wiki/Rest_api#Collection-resources-and-pagination")
 
+(defconst org-redmine-property-id-name "issue_id")
+(defconst org-redmine-property-updated-name "updated_on")
 (defconst org-redmine-template-header-default "#%i% %s% :%t_n%:")
 (defconst org-redmine-template-%-sequences
   '(("%as_i%"    "assigned_to" "id")
@@ -275,6 +277,18 @@ Example.
   (format "%s/issues/%s" org-redmine-uri (orutil-gethash issue "id")))
 
 ;;------------------------------
+;; org-redmine emtry function
+;;------------------------------
+(defun org-redmine-entry-get-update-info ()
+  "Get property values that necessary to issue update.
+
+Return cons (issue_id . updated_on)"
+  (let ((properties (org-entry-properties)))
+    (cons 
+     (cdr (assoc org-redmine-property-id-name properties))
+     (cdr (assoc org-redmine-property-updated-name properties)))))
+
+;;------------------------------
 ;; org-redmine buffer function
 ;;------------------------------
 (defun org-redmine-insert-header (issue level)
@@ -301,8 +315,8 @@ Example.
                          (nth 1 org-redmine-template-set)
                          '()))
          property key value)    
-    (org-set-property "issue_id" (int-to-string (orutil-gethash issue "id")))
-    (org-set-property "updated_on" (orutil-gethash issue "updated_on"))
+    (org-set-property org-redmine-property-id-name (int-to-string (orutil-gethash issue "id")))
+    (org-set-property org-redmine-property-updated-name (orutil-gethash issue "updated_on"))
     (while properties
       (setq property (car properties))
       (org-set-property (car property)

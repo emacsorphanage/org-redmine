@@ -12,7 +12,6 @@ OUTPUT=aaa
 $EMACS -q --no-site-file --batch $OPTIONS \
     -l org-redmine \
     -l el-expectations \
-    -l el-mock \
     -f batch-expectations $OUTPUT org-redmine-test.el
 ret=$?
 cat $OUTPUT

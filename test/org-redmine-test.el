@@ -1,7 +1,7 @@
 (require 'org-redmine)
 
 ;; setup
-(require 'org-redmine-test-fixture)
+(load-file "./org-redmine-test-fixture.el")
 
 ;; batch 処理の時に、message 関数が端末に出力されるのがいやだったので wrap した
 (when noninteractive
@@ -288,4 +288,13 @@
     (let ((d1 "2011/07/06 21:22:01 -0900")
           (d2 "2011/07/06 21:22:01 +0900"))
       (orutil-date-cmp d1 d2)))
+
+  (desc "org-redmine-entry-get-update-info")
+  (expect '("1" . "2011/07/06 21:27:04 +0900")
+    (stub org-redmine-curl-get => fixture-issue-json)
+    (with-current-buffer (exps-tmpbuf)
+      (change-buffer-to 'org-mode)
+        (change-buffer-to 'org-mode)
+        (org-redmine-get-issue "1")
+        (org-redmine-entry-get-update-info)))
   )
