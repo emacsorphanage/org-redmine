@@ -73,6 +73,8 @@ see http://www.redmine.org/projects/redmine/wiki/Rest_api#Collection-resources-a
   "Buffer curl output")
 (defvar org-redmine-template-header nil
   "")
+(defvar org-redmine-template-property-use nil
+  "Whether to insert properties")
 (defvar org-redmine-template-property nil
   "")
 (defvar org-redmine-template-set
@@ -311,6 +313,8 @@ Return cons (issue_id . updated_on)"
 
 (defun org-redmine-insert-property (issue)
   ""
+  (unless org-redmine-template-property-use
+    (return-from org-redmine-insert-property))
   (let* ((properties (or org-redmine-template-property
                          (nth 1 org-redmine-template-set)
                          '()))
