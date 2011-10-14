@@ -1,10 +1,10 @@
 #!/bin/sh
 EMACS=emacs
 
-ORGMODE_DIR=~/.emacs.d/lib/org-mode/
-ANYTHING_DIR=~/.emacs.d/lib/auto-install-el
-ELEXPECTATIONS_DIR=~/.emacs.d/lib/auto-install-el
-ELMOCK_DIR=~/.emacs.d/lib/auto-install-el
+ORGMODE_DIR=~/.emacs.d/el-get/org-mode/
+ANYTHING_DIR=~/.emacs.d/el-get/anything/
+ELEXPECTATIONS_DIR=~/.emacs.d/el-get/el-expectations/
+ELMOCK_DIR=~/.emacs.d/el-get/el-mock/
 
 OPTIONS="-L .. -L . -L $ORGMODE_DIR -L $ANYTHING_DIR -L $ELEXPECTATIONS_DIR -L $ELMOCK_DIR"
 OUTPUT=aaa

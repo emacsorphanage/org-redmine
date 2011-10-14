@@ -127,6 +127,17 @@
       (org-redmine-insert-property fixture-issue)
       (buffer-string)))
 
+  (desc "org-redmine-insert-property disable insertion")
+  (expect "\
+* hoge
+"
+    (with-current-buffer (exps-tmpbuf)
+      (change-buffer-to 'org-mode)
+      (let ((org-redmine-template-property-use nil))
+        (insert "* hoge\n")
+        (org-redmine-insert-property fixture-issue)
+        (buffer-string))))
+
   (desc "org-redmine-get-issue to blank buffer")
   (expect "\
 * #1 軌跡検知 :機能:
