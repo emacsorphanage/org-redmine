@@ -311,7 +311,7 @@ Return cons (issue_id . updated_on)"
        (buffer-string)))
   ))
 
-(defun org-redmine-insert-property (issue)
+(defun* org-redmine-insert-property (issue)
   ""
   (unless org-redmine-template-property-use
     (return-from org-redmine-insert-property))
