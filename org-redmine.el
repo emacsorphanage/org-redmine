@@ -73,7 +73,7 @@ see http://www.redmine.org/projects/redmine/wiki/Rest_api#Collection-resources-a
   "Buffer curl output")
 (defvar org-redmine-template-header nil
   "")
-(defvar org-redmine-template-property-use nil
+(defvar org-redmine-template-property-use t
   "Whether to insert properties")
 (defvar org-redmine-template-property nil
   "")
