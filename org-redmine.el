@@ -54,7 +54,7 @@ see http://www.redmine.org/projects/redmine/wiki/Rest_api#Collection-resources-a
     ("%pr_n%"    "priority" "name")
     ("%p_i%"     "project" "id")
     ("%p_n%"     "project" "name")
-    ("%s_date%"  "stard_date")
+    ("%s_date%"  "start_date")
     ("%s_i%"     "status" "id")
     ("%s_n%"     "status" "name")
     ("%s%"       "subject")
