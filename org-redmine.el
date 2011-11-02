@@ -77,6 +77,7 @@ see http://www.redmine.org/projects/redmine/wiki/Rest_api#Collection-resources-a
   "Whether to insert properties")
 (defvar org-redmine-template-property nil
   "")
+(defvar org-redmine-template-anything-source "#%i% [%p_n%] %s% / %as_n%")
 (defvar org-redmine-template-set
   '(nil
     nil
@@ -96,7 +97,20 @@ see http://www.redmine.org/projects/redmine/wiki/Rest_api#Collection-resources-a
 ;; org-redmine utility functions
 ;;------------------------------
 (defun orutil-join (list &optional sep func)
-  (mapconcat (lambda (x) (if func (funcall func x) (format "%s" x))) list (or sep ",")))
+  "Join list with a string
+
+Example:
+  (orutil-join '(\"a\" \"b\" \"c\"))
+      ;; => \"a,b,c\"
+  (orutil-join '(\"a\" \"b\" \"c\") \"-\")
+      ;; => \"a-b-c\"
+  (orutil-join '(3 \"2\" 1) \"%\")
+      ;; => \"3%2%1\"
+  (orutil-join '(3 2 1) \"/\" '(lambda (x) (number-to-string (* x 2))))
+      ;; => \"6/4/2\"
+"
+  (mapconcat (lambda (x) (if func (funcall func x)
+                           (format "%s" x))) list (or sep ",")))
 
 (defun orutil-http-query (alist)
   (orutil-join alist "&"
@@ -184,6 +198,17 @@ Example.
   ;; => t
 "
   (< (orutil-date-to-float date1) (orutil-date-to-float date2)))
+
+(defun orutil-format-with-issue (fstr issue)
+  "Format a string out of a format string and issue attribute hash"
+  (with-temp-buffer
+    (erase-buffer)
+    (insert fstr)
+    (goto-char (point-min))
+    (while (re-search-forward "\\(%[a-z_]+%\\)" nil t)
+      (let ((attr (org-redmine-template-%-to-attrkey (match-string 1))))
+        (if attr (replace-match (org-redmine-issue-attrvalue issue attr) t t))))
+    (buffer-string)))
 
 ;;------------------------------
 ;; org-redmine connection functions
@@ -301,16 +326,7 @@ Return cons (issue_id . updated_on)"
                       org-redmine-template-header-default))
         (stars (make-string level ?*)))
     (insert
-     (with-temp-buffer
-       (erase-buffer)
-       (insert (concat stars " "))
-       (insert template)
-       (goto-char (point-min))
-       (while (re-search-forward "\\(%[a-z_]+%\\)" nil t)
-         (let ((attr (org-redmine-template-%-to-attrkey (match-string 1))))
-           (if attr (replace-match (org-redmine-issue-attrvalue issue attr) t t))))
-       (buffer-string)))
-  ))
+     (concat stars " " (orutil-format-with-issue template issue)))))
 
 (defun* org-redmine-insert-property (issue)
   ""
@@ -394,12 +410,8 @@ Example.
      (cond ((stringp issue)
             (cons issue nil))
            ((hash-table-p issue)
-            (cons (format "#%s [%s] %s / %s"
-                          (orutil-gethash issue "id")
-                          (orutil-gethash issue "project" "name")
-                          (orutil-gethash issue "subject")
-                          (or (orutil-gethash issue "assigned_to" "name")
-                              "No one is assigned"))
+            (cons (orutil-format-with-issue org-redmine-template-anything-source
+                                            issue)
                   issue))))
    issues))
 

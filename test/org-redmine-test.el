@@ -42,6 +42,8 @@
     (orutil-join '("a" "b" "c") "-"))
   (expect "3%2%1"
     (orutil-join '(3 "2" 1) "%"))
+  (expect "6/4/2"
+    (orutil-join '(3 2 1) "/" '(lambda (x) (number-to-string (* x 2)))))
 
   (desc "org-redmine-template-%-to-attrkey")
   (expect '("id")
@@ -217,7 +219,7 @@
   (desc "org-redmine-transformer-issues-source")
   (expect '(("#3 [肉体言語 Tython] サマーソルトキックを認識 / Wataru MIYAGUNI"
              . "http://localhost/issues/3")
-            ("#2 [Gongo Kinect Diet] 走る / No one is assigned"
+            ("#2 [Gongo Kinect Diet] 走る / nil"
              . "http://localhost/issues/2")
             ("#1 [肉体言語 Tython] 軌跡検知 / Wataru MIYAGUNI"
              . "http://localhost/issues/1"))
@@ -308,4 +310,13 @@
         (change-buffer-to 'org-mode)
         (org-redmine-get-issue "1")
         (org-redmine-entry-get-update-info)))
+
+  (desc "orutil-format-with-issue")
+  (expect "#1 [肉体言語 Tython] 軌跡検知 / Wataru MIYAGUNI"
+    (with-current-buffer (exps-tmpbuf)
+      (orutil-format-with-issue "#%i% [%p_n%] %s% / %as_n%" fixture-issue)))
+  (expect "ticket (1) 軌跡検知を実装する"
+    (with-current-buffer (exps-tmpbuf)
+      (orutil-format-with-issue "ticket (%i%) %d%" fixture-issue)))
+
   )
