@@ -217,7 +217,7 @@
   (desc "org-redmine-transformer-issues-source")
   (expect '(("#3 [肉体言語 Tython] サマーソルトキックを認識 / Wataru MIYAGUNI"
              . "http://localhost/issues/3")
-            ("#2 [Gongo Kinect Diet] 走る / 未割り当て"
+            ("#2 [Gongo Kinect Diet] 走る / No one is assigned"
              . "http://localhost/issues/2")
             ("#1 [肉体言語 Tython] 軌跡検知 / Wataru MIYAGUNI"
              . "http://localhost/issues/1"))

@@ -1,7 +1,7 @@
 ;; Author: Wataru MIYAGUNI <gonngo@gmail.com>
 ;;
 ;; License: MAHALO License (based on MIT License)
-;; 
+;;
 ;;   Copyright (c) 2011 Wataru MIYAGUNI
 ;;
 ;;   Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -10,11 +10,11 @@
 ;;   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 ;;   copies of the Software, and to permit persons to whom the Software is
 ;;   furnished to do so, subject to the following conditions:
-;;   
+;;
 ;;     1. The above copyright notice and this permission notice shall be included in
 ;;        all copies or substantial portions of the Software.
 ;;     2. Shall be grateful for something (including, but not limited this software).
-;;   
+;;
 ;;   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 ;;   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 ;;   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -100,7 +100,7 @@ see http://www.redmine.org/projects/redmine/wiki/Rest_api#Collection-resources-a
 
 (defun orutil-http-query (alist)
   (orutil-join alist "&"
-                  (lambda (x) 
+                  (lambda (x)
                     (format "%s=%s"
                             (url-hexify-string (car x))
                             (url-hexify-string (cdr x))))))
@@ -279,16 +279,17 @@ Example.
   (format "%s/issues/%s" org-redmine-uri (orutil-gethash issue "id")))
 
 ;;------------------------------
-;; org-redmine emtry function
+;; org-redmine entry function
 ;;------------------------------
 (defun org-redmine-entry-get-update-info ()
   "Get property values that necessary to issue update.
 
 Return cons (issue_id . updated_on)"
   (let ((properties (org-entry-properties)))
-    (cons 
+    (cons
      (cdr (assoc org-redmine-property-id-name properties))
      (cdr (assoc org-redmine-property-updated-name properties)))))
+
 
 ;;------------------------------
 ;; org-redmine buffer function
@@ -318,7 +319,7 @@ Return cons (issue_id . updated_on)"
   (let* ((properties (or org-redmine-template-property
                          (nth 1 org-redmine-template-set)
                          '()))
-         property key value)    
+         property key value)
     (org-set-property org-redmine-property-id-name (int-to-string (orutil-gethash issue "id")))
     (org-set-property org-redmine-property-updated-name (orutil-gethash issue "updated_on"))
     (while properties
@@ -389,21 +390,17 @@ Example.
   ;; => '((issue1-string . issue1) (issue2-string . issue2) (issue3-string . issue3))
 "
   (mapcar
-   (lambda (i)
-     (cond ((stringp i)
-            (cons i nil))
-           ((hash-table-p i)
-            (let (display-value action-value)
-              (setq display-value
-                    (format "#%s [%s] %s / %s"
-                            (orutil-gethash i "id")
-                            (orutil-gethash i "project" "name")
-                            (orutil-gethash i "subject")
-                            (or (orutil-gethash i "assigned_to" "name")
-                                "未割り当て")))
-              (setq action-value i)
-              (cons display-value action-value)))
-           ))
+   (lambda (issue)
+     (cond ((stringp issue)
+            (cons issue nil))
+           ((hash-table-p issue)
+            (cons (format "#%s [%s] %s / %s"
+                          (orutil-gethash issue "id")
+                          (orutil-gethash issue "project" "name")
+                          (orutil-gethash issue "subject")
+                          (or (orutil-gethash issue "assigned_to" "name")
+                              "No one is assigned"))
+                  issue))))
    issues))
 
 ;;------------------------------
@@ -422,7 +419,7 @@ Example.
                          org-redmine-config-default-limit))
         (setq limit org-redmine-config-default-limit)))
     (if toStr (int-to-string limit) limit)))
-    
+
 ;;------------------------------
 ;; org-redmine user function
 ;;------------------------------
@@ -443,7 +440,7 @@ Example.
 (defun org-redmine-anything-show-issue-all (&optional me)
   "Display recent issues using `anything'"
   (interactive "P")
-  (anything 
+  (anything
    `(((name . "Issues")
       (candidates . ,(org-redmine-get-issue-all me))
       (candidate-transformer . org-redmine-transformer-issues-source)
