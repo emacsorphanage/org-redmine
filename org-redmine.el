@@ -65,8 +65,14 @@ see http://www.redmine.org/projects/redmine/wiki/Rest_api#Collection-resources-a
     ("%v_i%"     "fixed_version" "id")))
 
 
-(defvar org-redmine-uri "http://redmine120.dev")
-(defvar org-redmine-api-key nil)
+(defvar org-redmine-uri "http://redmine120.dev"
+  "Target Redmine URI")
+
+(defvar org-redmine-auth-api-key nil)
+(defvar org-redmine-auth-username nil)
+(defvar org-redmine-auth-password nil)
+(defvar org-redmine-auth-netrc-use nil)
+
 (defvar org-redmine-limit org-redmine-config-default-limit
   "The number of items to be present in the response.")
 (defvar org-redmine-curl-buffer "*Org redmine curl buffer*"
@@ -88,8 +94,6 @@ see http://www.redmine.org/projects/redmine/wiki/Rest_api#Collection-resources-a
 ;;------------------------------
 (put 'org-redmine-exception-not-retrieved 'error-message "OrgRedmine - Not retrieved")
 (put 'org-redmine-exception-not-retrieved 'error-conditions '(org-redmine-exception-not-retrieved error))
-(put 'org-redmine-exception-no-set-api-key 'error-message "OrgRedmine - No set API Key")
-(put 'org-redmine-exception-no-set-api-key 'error-conditions '(org-redmine-exception-no-set-api-key error))
 (put 'org-redmine-exception-no-date-format 'error-message "OrgRedmine - No date format")
 (put 'org-redmine-exception-no-date-format 'error-conditions '(org-redmine-exception-no-date-format error))
 
@@ -216,11 +220,9 @@ Example.
 (defun org-redmine-curl-get (uri)
   ""
   (ignore-errors (kill-buffer org-redmine-curl-buffer))
-  (unless (eq 0 (call-process "curl" nil `(,org-redmine-curl-buffer nil) nil
-                              "-f"
-                              "-X" "GET"
-                              "-H" "Content-Type:application/json"
-                              uri))
+  (unless (eq 0 (apply 'call-process "curl" nil `(,org-redmine-curl-buffer nil) nil
+                       (org-redmine-curl-args uri)
+                       ))
     (signal 'org-redmine-exception-not-retrieved "The requested URL returned error"))
   (save-current-buffer
     (set-buffer org-redmine-curl-buffer)
@@ -231,6 +233,21 @@ Example.
         (json-readtable-error
          (message "%s: Non JSON data because of a server side exception. See %s"
                   (error-message-string err) org-redmine-curl-buffer))))))
+
+(defun org-redmine-curl-args (uri)
+  (let ((args '("-X" "GET" "-s" "-f")))
+    (append
+     args
+     (cond (org-redmine-auth-api-key
+            `("-d"
+              ,(format "key=%s" org-redmine-auth-api-key)))
+           (org-redmine-auth-username
+            `("-u"
+              ,(format "%s:%s"
+                       org-redmine-auth-username (or org-redmine-auth-password ""))))
+           (org-redmine-auth-netrc-use '("--netrc"))
+           (t ""))
+     `(,uri))))
 
 ;;------------------------------
 ;; org-redmine template functions
@@ -372,24 +389,16 @@ When error occurs, return list of error message.
 
 if ME is t, return issues are assigned to user.
 "
-  (let* ((querylist (list (cons "key" (or org-redmine-api-key ""))
-                          (cons "limit" (org-redmine-config-get-limit t))))
+  (let* ((querylist (list (cons "limit" (org-redmine-config-get-limit t))))
          query issue-all)
 
     (condition-case err
         (progn
-          (if me
-              (progn
-                (add-to-list 'querylist (cons "assigned_to_id" "me"))
-                (unless org-redmine-api-key
-                  (signal 'org-redmine-exception-no-set-api-key ""))))
+          (if me (add-to-list 'querylist (cons "assigned_to_id" "me")))
           (setq query (orutil-http-query querylist))
           (setq issue-all (org-redmine-curl-get
                            (concat org-redmine-uri "/issues.json?" query)))
           (orutil-gethash issue-all "issues"))
-      (org-redmine-exception-no-set-api-key
-       (message "%s: Required API Key to use this" (error-message-string err))
-       (list (current-message)))
       (org-redmine-exception-not-retrieved
        (message "%s: Can't get issues on %s" (error-message-string err) org-redmine-uri)
        (list (current-message))))))
@@ -438,12 +447,11 @@ Example.
 (defun org-redmine-get-issue (issue-id)
   ""
   (interactive "sIssue ID: ")
-  (let* ((query (orutil-http-query (list (cons "key" org-redmine-api-key))))
-         issue)
+  (let (issue)
     (condition-case err
         (progn
           (setq issue (org-redmine-curl-get
-                       (format "%s/issues/%s.json?%s" org-redmine-uri issue-id query)))
+                       (format "%s/issues/%s.json" org-redmine-uri issue-id)))
           (org-redmine-insert-subtree (orutil-gethash issue "issue")))
       (org-redmine-exception-not-retrieved
        (message "%s: Can't find issue #%s on %s"

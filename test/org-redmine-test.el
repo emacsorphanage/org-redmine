@@ -272,12 +272,6 @@
     (let ((org-redmine-uri "http://localhost"))
       (org-redmine-get-issue-all nil)))
 
-  (desc "org-redmine-get-issue-all : require api key to get issues assigned to me")
-  (expect '("OrgRedmine - No set API Key: Required API Key to use this")
-    (let ((org-redmine-api-key nil) (org-redmine-uri "http://localhost"))
-      (stub org-redmine-curl-get => fixture-issue-all-json)
-      (org-redmine-get-issue-all t)))
-
   (desc "orutil-date-to-float")
   (expect 1309954921.0
     (orutil-date-to-float "2011/07/06 21:22:01 +0900"))
