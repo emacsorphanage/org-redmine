@@ -3,9 +3,11 @@
 ** Install
 *** Using git
     1. You can clone the git repository
+
        : git clone git://github.com/hackers/org-redmine.git
 
     2. Then add this to your ~/.emacs.el
+
        : (add-to-list 'load-path "/path/to/org-redmine/")
        : (require 'org-redmine)
 
@@ -16,15 +18,29 @@
     : ;; Or run
     : ;; M-x auto-install-from-url RET https://raw.github.com/hackers/org-redmine/master/org-redmine.el
 ** Setup
-*** URL and key
+*** URL (Required)
     : ;; Target Redmine URI
     : ;;   eg. Redmine Project
     : (setq org-redmine-uri "http://www.redmine.org")
     : ;;   eg. Ruby Project
     : (setq org-redmine-uri "http://redmine.ruby-lang.org")
-    : 
-    : ;; REST API Key (optional). default nil
-    : (setq org-redmine-api-key "xxxxxxxxxxxxxxxxxxxx")
+*** Authentication (Optional)
+    Presented in order of highest priority setting.
+
+    1. REST API Key
+
+       : (setq org-redmine-api-key "xxxxxxxxxxxxxxxxxxxx") ;; nil default
+
+    2. username/password
+
+       : (setq org-redmine-auth-username "gongo")
+       : (setq org-redmine-auth-password "secret")
+
+    3. use =$HOME/.netrc=
+
+       : ;; if t, read $HOME/.netrc
+       : (setq org-redmine-auth-netrc-use t) ;; nil default
+
 *** Template Sequences
     | %-sequence | mean               |
     |------------+--------------------|

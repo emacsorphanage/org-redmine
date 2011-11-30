@@ -15,15 +15,33 @@
     もしくは、以下を実行してください
     : M-x auto-install-from-url RET https://raw.github.com/hackers/org-redmine/master/org-redmine.el
 ** 設定
-*** URL や API Key
+*** URL
     : ;; 対象の Redmine の URL を設定します
     : ;;   例. Redmine Project
     : (setq org-redmine-uri "http://www.redmine.org")
     : ;;   例. Ruby Project
     : (setq org-redmine-uri "http://redmine.ruby-lang.org")
 
-    : ;; オプションとして、REST API Key が設定可能です。デフォルトは nil になっています
-    : (setq org-redmine-api-key "xxxxxxxxxxxxxxxxxxxx")
+*** 認証 (必須ではない)
+    認証設定は3つあります。優先度の高い順に紹介していきます。
+
+    すべて設定されていても、優先度の高いものだけ適用されます。
+
+    1. API Key
+
+       REST API Key が設定可能です。デフォルトは nil になっています
+       : (setq org-redmine-api-key "xxxxxxxxxxxxxxxxxxxx")
+
+    2. ユーザ/パスワード認証
+
+       ログインに用いるユーザ及びパスワードを使って認証を行います。
+       : (setq org-redmine-auth-username "gongo")
+       : (setq org-redmine-auth-password "secret")
+
+    3. netrc 認証
+       =$HOME/.netrc= の使って認証を行うかどうかを設定します。
+       : (setq org-redmine-auth-netrc-use t) ;; デフォルトは nil
+
 *** テンプレートに用いるシーケンス一覧
     | %-sequence | mean                                 |
     |------------+--------------------------------------|
