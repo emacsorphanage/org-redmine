@@ -239,7 +239,7 @@ Example.
     (append
      args
      (cond (org-redmine-auth-api-key
-            `("-d"
+            `("-G" "-d"
               ,(format "key=%s" org-redmine-auth-api-key)))
            (org-redmine-auth-username
             `("-u"
