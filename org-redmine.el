@@ -1,5 +1,8 @@
+;;; org-redmine.el --- Redmine tools using Emacs OrgMode
+
 ;; Author: Wataru MIYAGUNI <gonngo@gmail.com>
-;;
+;; Keywords: redmine
+
 ;; License: MAHALO License (based on MIT License)
 ;;
 ;;   Copyright (c) 2011 Wataru MIYAGUNI
@@ -22,6 +25,13 @@
 ;;   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ;;   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 ;;   THE SOFTWARE.
+
+;;; Commentary:
+
+;; This program is a client for Redmine using `org-mode'.
+;; In the Emacs, uses can show list of issue (responsible, recent, all, etc..).
+
+;;; Code:
 
 (eval-when-compile
   (require 'cl))
