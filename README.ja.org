@@ -30,7 +30,7 @@
     1. API Key
 
        REST API Key が設定可能です。デフォルトは nil になっています
-       : (setq org-redmine-api-key "xxxxxxxxxxxxxxxxxxxx")
+       : (setq org-redmine-auth-api-key "xxxxxxxxxxxxxxxxxxxx")
 
     2. ユーザ/パスワード認証
 

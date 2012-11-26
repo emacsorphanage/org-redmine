@@ -29,7 +29,7 @@
 
     1. REST API Key
 
-       : (setq org-redmine-api-key "xxxxxxxxxxxxxxxxxxxx") ;; nil default
+       : (setq org-redmine-auth-api-key "xxxxxxxxxxxxxxxxxxxx") ;; nil default
 
     2. username/password
 
