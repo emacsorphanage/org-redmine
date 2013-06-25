@@ -3,17 +3,17 @@
 ** インストール
 *** git でもってくる
     1. org-redmine リポジトリを clone します
-       : git clone git://github.com/hackers/org-redmine.git
+       : git clone git://github.com/gongo/org-redmine.git
 
     2. 以下を .emacs など、適当な箇所に書いておきます
        : (add-to-list 'load-path "/path/to/org-redmine/")
        : (require 'org-redmine)
 *** auto-install ユーザ向け
     以下を評価するとインストールできます
-    : (auto-install-from-url "https://raw.github.com/hackers/org-redmine/master/org-redmine.el")
+    : (auto-install-from-url "https://raw.github.com/gongo/org-redmine/master/org-redmine.el")
 
     もしくは、以下を実行してください
-    : M-x auto-install-from-url RET https://raw.github.com/hackers/org-redmine/master/org-redmine.el
+    : M-x auto-install-from-url RET https://raw.github.com/gongo/org-redmine/master/org-redmine.el
 ** 設定
 *** URL
     : ;; 対象の Redmine の URL を設定します

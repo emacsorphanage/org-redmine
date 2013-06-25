@@ -4,7 +4,7 @@
 *** Using git
     1. You can clone the git repository
 
-       : git clone git://github.com/hackers/org-redmine.git
+       : git clone git://github.com/gongo/org-redmine.git
 
     2. Then add this to your ~/.emacs.el
 
@@ -13,10 +13,10 @@
 
 *** Using auto-install
     : ;; Eval this
-    : (auto-install-from-url "https://raw.github.com/hackers/org-redmine/master/org-redmine.el")
+    : (auto-install-from-url "https://raw.github.com/gongo/org-redmine/master/org-redmine.el")
     : 
     : ;; Or run
-    : ;; M-x auto-install-from-url RET https://raw.github.com/hackers/org-redmine/master/org-redmine.el
+    : ;; M-x auto-install-from-url RET https://raw.github.com/gongo/org-redmine/master/org-redmine.el
 ** Setup
 *** URL (Required)
     : ;; Target Redmine URI
