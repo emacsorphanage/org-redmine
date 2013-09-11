@@ -1,18 +1,10 @@
 (require 'org-redmine)
+(require 'ert-expectations)
+(require 'el-mock)
 
-;; setup
-(load-file "./org-redmine-test-fixture.el")
-
-;; batch 処理の時に、message 関数が端末に出力されるのがいやだったので wrap した
-(when noninteractive
-  (defvar org-redmine-expectation-message nil)
-
-  (defadvice message (around message-to-variable activate)
-    (setq org-redmine-expectation-message (apply 'format format-string args)))
-
-  (defadvice current-message (around get-message-from-variable activate)
-    (setq ad-return-value org-redmine-expectation-message))
-)
+(if noninteractive
+    (load-file (concat (file-name-directory load-file-name) "org-redmine-test-fixture.el"))
+  (load-file "org-redmine-test-fixture.el"))
 
 (defun change-buffer-to (mode)
   (if (version< "23.2" emacs-version)
@@ -205,11 +197,10 @@
         (buffer-string))))
 
   (desc "org-redmine-get-issue : Can't find issue id")
-  (expect "OrgRedmine - Not retrieved: Can't find issue #1 on http://localhost"
+  (expect '("OrgRedmine - Not retrieved: Can't find issue #1 on http://localhost")
     (stub call-process => 22)
     (let ((org-redmine-uri "http://localhost"))
-      (org-redmine-get-issue "1")
-      (current-message)))
+      (org-redmine-get-issue "1")))
 
   (desc "org-redmine-issue-uri")
   (expect "http://localhost/issues/1"
@@ -224,7 +215,7 @@
             ("#1 [肉体言語 Tython] 軌跡検知 / Wataru MIYAGUNI"
              . "http://localhost/issues/1"))
     (let ((org-redmine-uri "http://localhost"))
-      (mapcar 
+      (mapcar
        (lambda (i)
          (cons (car i) (org-redmine-issue-uri (cdr i))))
        (org-redmine-transformer-issues-source fixture-issue-all))))

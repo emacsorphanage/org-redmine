@@ -224,6 +224,10 @@ Example.
         (if attr (replace-match (org-redmine-issue-attrvalue issue attr) t t))))
     (buffer-string)))
 
+(defun orutil-print-error (msg)
+  (message msg)
+  (list msg))
+
 ;;------------------------------
 ;; org-redmine connection functions
 ;;------------------------------
@@ -399,8 +403,8 @@ When error occurs, return list of error message.
 
 if ME is t, return issues are assigned to user.
 "
-  (let* ((querylist (list (cons "limit" (org-redmine-config-get-limit t))))
-         query issue-all)
+  (let ((querylist (list (cons "limit" (org-redmine-config-get-limit t))))
+        query issue-all)
 
     (condition-case err
         (progn
@@ -410,8 +414,8 @@ if ME is t, return issues are assigned to user.
                            (concat org-redmine-uri "/issues.json?" query)))
           (orutil-gethash issue-all "issues"))
       (org-redmine-exception-not-retrieved
-       (message "%s: Can't get issues on %s" (error-message-string err) org-redmine-uri)
-       (list (current-message))))))
+       (orutil-print-error (format "%s: Can't get issues on %s"
+                                   (error-message-string err) org-redmine-uri))))))
 
 (defun org-redmine-transformer-issues-source (issues)
   "Transform issues to `anything' source.
@@ -440,11 +444,10 @@ Example.
 (defun org-redmine-config-get-limit (&optional toStr)
   (let ((limit org-redmine-limit))
     (if (integerp limit)
-        (if (or (< limit 1) (> limit 100))
-            (progn
-              (message (format "Warning: org-redmine-limit is out of range. return default value %s"
-                               org-redmine-config-default-limit))
-              (setq limit org-redmine-config-default-limit)))
+        (when (or (< limit 1) (> limit 100))
+          (message (format "Warning: org-redmine-limit is out of range. return default value %s"
+                           org-redmine-config-default-limit))
+          (setq limit org-redmine-config-default-limit))
       (progn
         (message (format "Warning: org-redmine-limit isn't integer. return default value %s"
                          org-redmine-config-default-limit))
@@ -464,8 +467,9 @@ Example.
                        (format "%s/issues/%s.json" org-redmine-uri issue-id)))
           (org-redmine-insert-subtree (orutil-gethash issue "issue")))
       (org-redmine-exception-not-retrieved
-       (message "%s: Can't find issue #%s on %s"
-                (error-message-string err) issue-id org-redmine-uri)))))
+       (orutil-print-error
+        (format "%s: Can't find issue #%s on %s"
+                (error-message-string err) issue-id org-redmine-uri))))))
 
 (defun org-redmine-anything-show-issue-all (&optional me)
   "Display recent issues using `anything'"
