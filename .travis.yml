@@ -3,7 +3,6 @@ env:
   matrix:
     - EMACS=emacs23
     - EMACS=emacs24
-    - EMACS=emacs-snapshot
   global:
     - CASK=$HOME/.cask/bin/cask
 before_install:
