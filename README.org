@@ -1,4 +1,7 @@
 * org-redmine
+
+  [[https://travis-ci.org/gongo/org-redmine.png?branch=master]]
+
 ** Overview
 ** Install
 *** Using git
@@ -98,16 +101,8 @@
 
     See org-redmine.el for other % sequence list
 ** Test
-*** Require Emacs lisp
-    - [[http://www.emacswiki.org/emacs/el-expectations.el][el-expectations.el]]
-    - [[http://www.emacswiki.org/emacs/el-mock.el][el-mock.el]]
-*** Setting
-    Edit *test/run.sh*
-
-    : ORGMODE_DIR # path to org-mode
-    : ANYTHING_DIR # path to anything
-    : ELEXPECTATIONS_DIR # directory path to el-expectations.el
-    : ELMOCK_DIR # directory path to el-mock.el
+*** Requirements
+    - [[https://github.com/cask/cask][cask.el]]
 *** Run
     : $ make test
 *** Autotest

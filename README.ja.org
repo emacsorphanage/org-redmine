@@ -1,4 +1,7 @@
 * org-redmine
+
+  [[https://travis-ci.org/gongo/org-redmine.png?branch=master]]
+
 ** 概要
 ** インストール
 *** git でもってくる
@@ -100,16 +103,8 @@
 
     テンプレートで使用できるフォーマットは、org-redmine.el に載っています。
 ** テスト
-*** テストに必要な Emacs lisp
-    - [[http://www.emacswiki.org/emacs/el-expectations.el][el-expectations.el]]
-    - [[http://www.emacswiki.org/emacs/el-mock.el][el-mock.el]]
-*** テストの設定
-    *test/run.sh* の以下変数を実行環境に合わせてください
-
-    : ORGMODE_DIR # org-mode ディレクトリ
-    : ANYTHING_DIR # anything.el が置かれているディレクトリ
-    : ELEXPECTATIONS_DIR # el-expectations.el が置かれているディレクトリ
-    : ELMOCK_DIR # el-mock.el が置かれているディレクトリ
+*** テストをするために必要なもの
+    - [[https://github.com/cask/cask][cask.el]]
 *** 実行
     : $ make test
 *** 自動テスト
