@@ -1,6 +1,8 @@
 ;;; org-redmine.el --- Redmine tools using Emacs OrgMode
 
 ;; Author: Wataru MIYAGUNI <gonngo@gmail.com>
+;; URL: https://github.com/gongo/org-redmine
+;; Package-Requires: ((anything "0"))
 ;; Keywords: redmine
 
 ;; License: MAHALO License (based on MIT License)
@@ -486,3 +488,5 @@ Example.
    ))
 
 (provide 'org-redmine)
+
+;;; org-redmine.el ends here
