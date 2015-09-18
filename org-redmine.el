@@ -460,6 +460,7 @@ Example.
 ;;------------------------------
 ;; org-redmine user function
 ;;------------------------------
+;;;###autoload
 (defun org-redmine-get-issue (issue-id)
   ""
   (interactive "sIssue ID: ")
@@ -474,6 +475,7 @@ Example.
         (format "%s: Can't find issue #%s on %s"
                 (error-message-string err) issue-id org-redmine-uri))))))
 
+;;;###autoload
 (defun org-redmine-anything-show-issue-all (&optional me)
   "Display recent issues using `anything'"
   (interactive "P")
