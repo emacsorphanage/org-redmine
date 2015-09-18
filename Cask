@@ -1,9 +1,7 @@
-(package "org-redmine" "0.0.1" "Redmine tools using Emacs OrgMode")
+(source gnu)
+(source melpa)
 
-(source "melpa" "http://melpa.milkbox.net/packages/")
-(source "marmalade" "http://marmalade-repo.org/packages/")
-
-(depends-on "anything")
+(package-file "org-redmine.el")
 
 (development
  (depends-on "ert")

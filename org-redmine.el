@@ -4,6 +4,7 @@
 ;; URL: https://github.com/gongo/org-redmine
 ;; Package-Requires: ((anything "0"))
 ;; Keywords: redmine
+;; Version: 0.0.1
 
 ;; License: MAHALO License (based on MIT License)
 ;;
