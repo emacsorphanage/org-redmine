@@ -14,12 +14,6 @@ env:
     - EMACS=emacs-snapshot EMACS_PPA=ppa:ubuntu-elisp/ppa
   global:
     - PATH=$HOME/.cask/bin:$PATH
-env:
-  matrix:
-    - EMACS=emacs23
-    - EMACS=emacs24
-  global:
-    - CASK=$HOME/.cask/bin/cask
 
 before_install:
   - sudo add-apt-repository -y "$EMACS_PPA"
