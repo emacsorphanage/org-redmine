@@ -100,17 +100,5 @@
     : ;;   :END:
 
     See org-redmine.el for other % sequence list
-** Test
-*** Requirements
-    - [[https://github.com/cask/cask][cask.el]]
-*** Run
-    : $ make test
-*** Autotest
-    Autotest used to [[https://github.com/mynyml/watchr][watchr]].
-
-    : $ watchr test.watchr
-
-    When org-redmine.el and test/org-redmine-test.el are modified, run autotest.
-
 ** LICENSE
    This project is licensed under the MAHALO License. See LICENSE for details.

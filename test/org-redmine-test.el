@@ -1,7 +1,3 @@
-(require 'org-redmine)
-(require 'ert-expectations)
-(require 'el-mock)
-
 (if noninteractive
     (load-file (concat (file-name-directory load-file-name) "org-redmine-test-fixture.el"))
   (load-file "org-redmine-test-fixture.el"))

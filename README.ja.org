@@ -102,18 +102,6 @@
     : ;;   :END:
 
     テンプレートで使用できるフォーマットは、org-redmine.el に載っています。
-** テスト
-*** テストをするために必要なもの
-    - [[https://github.com/cask/cask][cask.el]]
-*** 実行
-    : $ make test
-*** 自動テスト
-    org-redmine は [[https://github.com/mynyml/watchr][watchr]] を用いた自動テストを行っています。
-
-    : $ watchr test.watchr
-
-    上記コマンドを実行後、org-redmine.el か test/org-redmine-test.el が変更されたら、
-    自動的にテストが実行されます。
 
 ** ライセンスについて
    このプロジェクトは MAHALO ライセンスです。詳しくは LICENSE.ja ファイルをご覧下さい。
