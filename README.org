@@ -101,4 +101,5 @@
 
     See org-redmine.el for other % sequence list
 ** LICENSE
-   This project is licensed under the MAHALO License. See LICENSE for details.
+
+   MIT
