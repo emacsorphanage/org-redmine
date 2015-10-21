@@ -1,7 +1,7 @@
 org-redmine
 ==============================
 
-[[https://travis-ci.org/gongo/org-redmine][https://travis-ci.org/gongo/org-redmine.png?branch=master]]
+[![Build Status](https://travis-ci.org/gongo/org-redmine.svg?branch=master)](https://travis-ci.org/gongo/org-redmine)
 
 Overview
 --------------------
