@@ -6,6 +6,8 @@ org-redmine
 Overview
 --------------------
 
+![](images/org-redmine.gif)
+
 Install
 --------------------
 
