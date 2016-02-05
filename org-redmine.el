@@ -477,29 +477,32 @@ Example.
 (defun org-redmine-anything-show-issue-all (&optional me)
   "Display recent issues using `anything'"
   (interactive "P")
-  (anything
-   `(((name . "Issues")
-      (candidates . ,(org-redmine-get-issue-all me))
-      (candidate-transformer . org-redmine-transformer-issues-source)
-      (volatile)
-      (action . (("Open Browser"
-                  . (lambda (issue) (browse-url (org-redmine-issue-uri issue))))
-                 ("Insert Subtree"
-                  . (lambda (issue) (org-redmine-insert-subtree issue)))))))
-   ))
+  (if (require 'anything nil t)
+      (anything
+       `(((name . "Issues")
+          (candidates . ,(org-redmine-get-issue-all me))
+          (candidate-transformer . org-redmine-transformer-issues-source)
+          (volatile)
+          (action . (("Open Browser"
+                      . (lambda (issue) (browse-url (org-redmine-issue-uri issue))))
+                     ("Insert Subtree"
+                      . (lambda (issue) (org-redmine-insert-subtree issue))))))))
+    (message "`anything` is not available. Please install it.")))
 
 ;;;###autoload
 (defun org-redmine-helm-show-issue-all (&optional me)
   "Display recent issues using `helm'"
   (interactive "P")
-  (helm :sources (helm-build-sync-source "Issues"
-                   :candidates (lambda () (org-redmine-get-issue-all me))
-                   :candidate-transformer '(org-redmine-transformer-issues-source)
-                   :volatile t
-                   :action '(("Open Browser"
-                              . (lambda (issue) (browse-url (org-redmine-issue-uri issue))))
-                             ("Insert Subtree"
-                              . (lambda (issue) (org-redmine-insert-subtree issue)))))))
+  (if (require 'helm nil t)
+      (helm :sources (helm-build-sync-source "Issues"
+                       :candidates (lambda () (org-redmine-get-issue-all me))
+                       :candidate-transformer '(org-redmine-transformer-issues-source)
+                       :volatile t
+                       :action '(("Open Browser"
+                                  . (lambda (issue) (browse-url (org-redmine-issue-uri issue))))
+                                 ("Insert Subtree"
+                                  . (lambda (issue) (org-redmine-insert-subtree issue))))))
+    (message "`helm` is not available. Please install it.")))
 
 (provide 'org-redmine)
 
