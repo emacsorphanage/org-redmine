@@ -2,7 +2,7 @@
 
 ;; Author: Wataru MIYAGUNI <gonngo@gmail.com>
 ;; URL: https://github.com/gongo/org-redmine
-;; Package-Requires: ((anything "0"))
+;; Package-Requires: ((helm-core "1.9.1"))
 ;; Keywords: redmine org
 ;; Version: 0.1.0
 
@@ -40,7 +40,7 @@
   (require 'cl))
 (require 'org)
 (require 'json)
-(require 'anything)
+(require 'helm)
 
 (defconst org-redmine-config-default-limit 25
   "Default value the number of items to be present in the response.
@@ -476,19 +476,18 @@ Example.
                 (error-message-string err) issue-id org-redmine-uri))))))
 
 ;;;###autoload
-(defun org-redmine-anything-show-issue-all (&optional me)
-  "Display recent issues using `anything'"
+(defun org-redmine-helm-show-issue-all (&optional me)
+  "Display recent issues using `helm'"
   (interactive "P")
-  (anything
-   `(((name . "Issues")
-      (candidates . ,(org-redmine-get-issue-all me))
-      (candidate-transformer . org-redmine-transformer-issues-source)
-      (volatile)
-      (action . (("Open Browser"
-                  . (lambda (issue) (browse-url (org-redmine-issue-uri issue))))
-                 ("Insert Subtree"
-                  . (lambda (issue) (org-redmine-insert-subtree issue)))))))
-   ))
+  (helm :sources (helm-build-sync-source "Issues"
+                   :candidates (lambda () (org-redmine-get-issue-all me))
+                   :candidate-transformer '(org-redmine-transformer-issues-source)
+                   :volatile t
+                   :action '(("Open Browser"
+                              . (lambda (issue) (browse-url (org-redmine-issue-uri issue))))
+                             ("Insert Subtree"
+                              . (lambda (issue) (org-redmine-insert-subtree issue)))))))
+
 
 (provide 'org-redmine)
 
