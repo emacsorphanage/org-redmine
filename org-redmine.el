@@ -2,7 +2,6 @@
 
 ;; Author: Wataru MIYAGUNI <gonngo@gmail.com>
 ;; URL: https://github.com/gongo/org-redmine
-;; Package-Requires: ((anything "0") (helm-core "1.9.1"))
 ;; Keywords: redmine org
 ;; Version: 0.1.0
 
@@ -40,8 +39,6 @@
   (require 'cl))
 (require 'org)
 (require 'json)
-(require 'anything)
-(require 'helm)
 
 (defconst org-redmine-config-default-limit 25
   "Default value the number of items to be present in the response.
