@@ -494,7 +494,7 @@ Example.
   "Display recent issues using `helm'"
   (interactive "P")
   (if (require 'helm nil t)
-      (helm :sources (helm-build-sync-source "Issues"
+      (helm :sources (helm-make-source "Issues" 'helm-source-sync
                        :candidates (lambda () (org-redmine-get-issue-all me))
                        :candidate-transformer '(org-redmine-transformer-issues-source)
                        :volatile t
