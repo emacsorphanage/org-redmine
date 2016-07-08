@@ -40,6 +40,10 @@
 (require 'org)
 (require 'json)
 
+(declare-function helm "helm")
+(declare-function helm-make-source "helm-source")
+(declare-function anything "anything")
+
 (defconst org-redmine-config-default-limit 25
   "Default value the number of items to be present in the response.
 default is 25, maximum is 100.
