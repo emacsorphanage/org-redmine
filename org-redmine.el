@@ -40,6 +40,10 @@
 (require 'org)
 (require 'json)
 
+(declare-function helm "helm")
+(declare-function helm-make-source "helm-source")
+(declare-function anything "anything")
+
 (defconst org-redmine-config-default-limit 25
   "Default value the number of items to be present in the response.
 default is 25, maximum is 100.
@@ -494,7 +498,7 @@ Example.
   "Display recent issues using `helm'"
   (interactive "P")
   (if (require 'helm nil t)
-      (helm :sources (helm-build-sync-source "Issues"
+      (helm :sources (helm-make-source "Issues" 'helm-source-sync
                        :candidates (lambda () (org-redmine-get-issue-all me))
                        :candidate-transformer '(org-redmine-transformer-issues-source)
                        :volatile t
