@@ -2,32 +2,31 @@
 
 ;; Author: Wataru MIYAGUNI <gonngo@gmail.com>
 ;; URL: https://github.com/gongo/org-redmine
-;; Package-Requires: ((anything "0"))
-;; Keywords: redmine
-;; Version: 0.0.1
+;; Keywords: redmine org
+;; Version: 0.1.0
 
-;; License: MAHALO License (based on MIT License)
+;; Copyright (c) 2015 Wataru MIYAGUNI
 ;;
-;;   Copyright (c) 2011 Wataru MIYAGUNI
+;; MIT License
 ;;
-;;   Permission is hereby granted, free of charge, to any person obtaining a copy
-;;   of this software and associated documentation files (the "Software"), to deal
-;;   in the Software without restriction, including without limitation the rights
-;;   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-;;   copies of the Software, and to permit persons to whom the Software is
-;;   furnished to do so, subject to the following conditions:
+;; Permission is hereby granted, free of charge, to any person obtaining
+;; a copy of this software and associated documentation files (the
+;; "Software"), to deal in the Software without restriction, including
+;; without limitation the rights to use, copy, modify, merge, publish,
+;; distribute, sublicense, and/or sell copies of the Software, and to
+;; permit persons to whom the Software is furnished to do so, subject to
+;; the following conditions:
 ;;
-;;     1. The above copyright notice and this permission notice shall be included in
-;;        all copies or substantial portions of the Software.
-;;     2. Shall be grateful for something (including, but not limited this software).
+;; The above copyright notice and this permission notice shall be
+;; included in all copies or substantial portions of the Software.
 ;;
-;;   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-;;   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-;;   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-;;   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-;;   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-;;   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-;;   THE SOFTWARE.
+;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+;; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+;; LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+;; OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+;; WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ;;; Commentary:
 
@@ -40,7 +39,10 @@
   (require 'cl))
 (require 'org)
 (require 'json)
-(require 'anything)
+
+(declare-function helm "helm")
+(declare-function helm-make-source "helm-source")
+(declare-function anything "anything")
 
 (defconst org-redmine-config-default-limit 25
   "Default value the number of items to be present in the response.
@@ -479,16 +481,32 @@ Example.
 (defun org-redmine-anything-show-issue-all (&optional me)
   "Display recent issues using `anything'"
   (interactive "P")
-  (anything
-   `(((name . "Issues")
-      (candidates . ,(org-redmine-get-issue-all me))
-      (candidate-transformer . org-redmine-transformer-issues-source)
-      (volatile)
-      (action . (("Open Browser"
-                  . (lambda (issue) (browse-url (org-redmine-issue-uri issue))))
-                 ("Insert Subtree"
-                  . (lambda (issue) (org-redmine-insert-subtree issue)))))))
-   ))
+  (if (require 'anything nil t)
+      (anything
+       `(((name . "Issues")
+          (candidates . ,(org-redmine-get-issue-all me))
+          (candidate-transformer . org-redmine-transformer-issues-source)
+          (volatile)
+          (action . (("Open Browser"
+                      . (lambda (issue) (browse-url (org-redmine-issue-uri issue))))
+                     ("Insert Subtree"
+                      . (lambda (issue) (org-redmine-insert-subtree issue))))))))
+    (message "`anything` is not available. Please install it.")))
+
+;;;###autoload
+(defun org-redmine-helm-show-issue-all (&optional me)
+  "Display recent issues using `helm'"
+  (interactive "P")
+  (if (require 'helm nil t)
+      (helm :sources (helm-make-source "Issues" 'helm-source-sync
+                       :candidates (lambda () (org-redmine-get-issue-all me))
+                       :candidate-transformer '(org-redmine-transformer-issues-source)
+                       :volatile t
+                       :action '(("Open Browser"
+                                  . (lambda (issue) (browse-url (org-redmine-issue-uri issue))))
+                                 ("Insert Subtree"
+                                  . (lambda (issue) (org-redmine-insert-subtree issue))))))
+    (message "`helm` is not available. Please install it.")))
 
 (provide 'org-redmine)
 
