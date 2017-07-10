@@ -124,7 +124,7 @@ Presented in order of highest priority setting.
 
 (setq org-redmine-template-header "[#%i%] %s%")
 (setq org-redmine-template-property
-      '(("project_name" . "%as_n%")))
+      '(("project_name" . "%p_n%")))
 
 ;; * [#333] Subject
 ;;   :PROPERTIES:
