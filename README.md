@@ -1,6 +1,8 @@
 org-redmine
 ==============================
 
+**This repository has been archived because org-redmine is no longer under development.**
+
 [![Build Status](https://travis-ci.org/gongo/org-redmine.svg?branch=master)](https://travis-ci.org/gongo/org-redmine)
 
 Overview
